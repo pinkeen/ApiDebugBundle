@@ -18,6 +18,10 @@ class ApiConsumerDataCollector extends DataCollector
         $this->data = [
             'calls' => [],
             'apis' => [],
+            'error_count' => 0,
+            'success_count' => 0,
+            'warning_count' => 0,
+            'total_time' => 0,
         ];
     }
 
@@ -42,7 +46,67 @@ class ApiConsumerDataCollector extends DataCollector
         if(!in_array($callData->getApiName(), $this->data['apis'])) {
             $this->data['apis'][] = $callData->getApiName();
         }
+
+        if($callData->hasError()) {
+            ++$this->data['error_count'];
+        } elseif($callData->hasWarning()) {
+            ++$this->data['warning_count'];
+        } else {
+            ++$this->data['success_count'];
+        }
+
+        if(false !== $callData->getTotalTime()) {
+            $this->data['total_time'] += $callData->getTotalTime();
+        }
     }
+
+    /**
+     * @return bool
+     */
+    public function hasErrors()
+    {
+        return 0 !== $this->data['error_count'];
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasWarnings()
+    {
+        return 0 !== $this->data['warning_count'];
+    }    
+
+    /**
+     * @return int
+     */
+    public function getErrorCount()
+    {
+        return $this->data['error_count'];
+    }
+
+    /**
+     * @return int
+     */
+    public function getWarningCount()
+    {
+        return $this->data['warning_count'];
+    }    
+
+    /**
+     * @return int
+     */
+    public function getSuccessCount()
+    {
+        return $this->data['success_count'];
+    }    
+
+    /**
+     * @return int
+     */
+    public function getTotalTime()
+    {
+        return $this->data['total_time'];
+    }    
 
     /**
      * Returns array of call data items.

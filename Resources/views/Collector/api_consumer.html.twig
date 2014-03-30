@@ -1,12 +1,39 @@
 {% extends 'WebProfilerBundle:Profiler:layout.html.twig' %}
 
 {% block toolbar %}
+    {% if collector.hasCalls %}
         {% set icon %}
             <img width="16" height="28" alt="API" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcAgMAAAAVX9eJAAAAA3NCSVQICAjb4U/gAAAACVBMVEUAAAA/Pz+4uLjfnSu+AAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAADhJREFUCFtjYIAAFhAhCiJCHRgYGEMDGBhYQ0OgXDCxihKigQFCcK1awcDAtGoBlMugBbKRgwECACQCGHnyve7YAAAAAElFTkSuQmCC"/>
-            <span class="sf-toolbar-status sf-toolbar-status-green">{{ collector.calls|length }}</span>
+            <span class="sf-toolbar-status sf-toolbar-status-{% if collector.hasErrors %}red{% elseif collector.hasWarnings %}yellow{% else %}green{% endif %}">{{ collector.calls|length }}</span>
         {% endset %}
-
+        {% set text %}
+            {% if collector.totalTime > 0 %}
+                <div class="sf-toolbar-info-piece">
+                    <b>Total Time</b>
+                    {{ collector.totalTime|number_format(2) }} s
+                </div>            
+            {% endif %}        
+            {% if collector.successCount %}
+                <div class="sf-toolbar-info-piece">
+                    <b>Successes</b>
+                    <span class="sf-toolbar-status sf-toolbar-status-green">{{ collector.successCount }}</span>
+                </div>
+            {% endif %}        
+            {% if collector.errorCount %}
+                <div class="sf-toolbar-info-piece">
+                    <b>Errors</b>
+                    <span class="sf-toolbar-status sf-toolbar-status-red">{{ collector.errorCount }}</span>
+                </div>
+            {% endif %}
+            {% if collector.warningCount %}
+                <div class="sf-toolbar-info-piece">
+                    <b>Warnings</b>
+                    <span class="sf-toolbar-status sf-toolbar-status-yellow">{{ collector.warningCount }}</span>
+                </div>
+            {% endif %}
+        {% endset %}        
         {% include '@WebProfiler/Profiler/toolbar_item.html.twig' with { 'link': profiler_url } %}
+    {% endif %}
 {% endblock %}
 
 {% block menu %}
@@ -43,19 +70,73 @@
             background: #fff;
             margin: 5px 0 0 0;
         }
+
+        .r-label {
+            color: #fff;
+            border-radius: 6px;
+            font-size: 11px;
+            padding: 1px 3px;
+            background: #888;
+            display: inline-block;
+            vertical-align: top;
+        }
+
+        .r-label-green {
+            background: #759e1a;
+        }        
+
+        .r-label-red {
+            background: #a33;
+        }
+
+        .r-label-yellow {
+            background: #ffcc00;
+        }
+
+        ul.alt li:hover {
+            background: #f6f6f6;
+        }
+
+        .pull-right {
+            float: right;
+            clear: right;
+        }
     </style>
 
     <h2>API Calls</h2>
     {% if collector.hasCalls %}
         <ul class="alt">
             {% for call in collector.calls %}
-                <li class="{% if loop.index is even %}even{% else %}odd{% endif %}">
-                    <strong>{{ call.method }}</strong>
-                    {{ call.url }}
+                <li class="{% if loop.index is even %}even{% else %}odd{% endif %} {% if call.hasError %}error{% endif %}">
                     {% if call.hasResponse %}
-                        <em>{{ call.responseStatusCode }}</em>
+                        <span class="r-label r-label-{% if call.hasError %}red{% elseif call.hasWarning %}yellow{% else %}green {% endif %}">{{ call.responseStatusCode }}</span>
                     {% endif %} 
+
+                    <strong>{{ call.method }}</strong>
+
+                    {{ call.url }}
+
+                    <div class="pull-right">
+                        {% if call.responseLength %}
+                            <span class="r-label">
+                                {{ (call.responseLength / 1024)|number_format(2) }} KiB
+                            </span>
+                        {% endif %}
+                        {% if call.totalTime %}
+                            <span class="r-label">
+                                {{ call.totalTime|number_format(2) }} s
+                            </span>
+                        {% endif %}
+                        <span class="r-label">
+                            {{ call.apiName }}
+                        </span>
+                    </div>
+
                     <div class="ex-info-box">
+                        {% if call.errorString %}
+                            <span class="small-header">Error message</span>
+                            <em>{{ call.errorString }}</em>
+                        {% endif %}                    
                         {% if call.hasRequestHeaders %}
                             <span class="small-header">Request Headers</span>
                             {{ _self.show_headers(call.requestHeaders )}}
@@ -81,7 +162,7 @@
     {% for name, value in headers %}
         <div class="http-header">
             <strong>{{ name }}:</strong>
-            {{ value|join(',') }}{% if not loop.last %}<br/>{% endif %}
+            {{ value }}{% if not loop.last %}<br/>{% endif %}
         </div>
     {% endfor %}
 {% endmacro %}

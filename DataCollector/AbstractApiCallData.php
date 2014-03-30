@@ -70,7 +70,42 @@ abstract class AbstractApiCallData implements \Serializable
      *
      * @return string
      */
-    abstract public function getApiName();    
+    abstract public function getApiName();
+
+    /**
+     * Returns error string if there was an error
+     * making the request. Returns false otherwise.
+     * 
+     * See hasWarning first!
+     *
+     * @return string|false
+     */
+    abstract public function getErrorString();
+
+    /**
+     * Should return true if the request is possibly ok
+     * but it's not certain. This is the case with 404 codes
+     * which are common in rest APIs and perfectly normal
+     * in some applications.
+     * 
+     * @return bool
+     */
+    public function hasWarning()
+    {
+        if($this->getResponseStatusCode() == 404) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasError()
+    {
+        return false !== $this->getErrorString();
+    }
 
     /**
      * @return bool
@@ -87,6 +122,51 @@ abstract class AbstractApiCallData implements \Serializable
     {
         return null !== $this->getResponseHeaders() && !empty($this->getResponseHeaders());
     }    
+
+    /** 
+     * @return string
+     */
+    public function getRequestBody()
+    {
+        return null;
+    }
+
+    /** 
+     * @return string
+     */
+    public function getResponseBody()
+    {
+        return null;
+    }
+
+    /**
+     * Returns the total time (in seconds) spent for processing this request or false.
+     *
+     * @return float|false
+     */
+    public function getTotalTime()
+    {
+        return false;
+    }
+
+    /**
+     * @return int
+     */
+    public function getResponseLength()
+    {
+        if(
+            $this->hasResponseHeaders() && 
+            array_key_exists('Content-Length', $this->getResponseHeaders())
+        ) {
+            return intval($this->getResponseHeaders()['Content-Length']);
+        }
+
+        if(null !== $this->getResponseBody()) {
+            return strlen($this->getResponseBody());
+        }
+
+        return null;        
+    }
 
     /**
      * Returns url elements parsed by parse_url().
