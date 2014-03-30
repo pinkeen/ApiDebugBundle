@@ -43,7 +43,7 @@ class DataCollectingSubscriber implements SubscriberInterface
     }	
 
     /**
-     * Handles guzzle onComplete event.
+     * Handles guzzle complete event.
      *
      * @param CompleteEvent $event
      */
@@ -53,7 +53,7 @@ class DataCollectingSubscriber implements SubscriberInterface
     }
 
     /**
-     * Handles guzzle onError event.
+     * Handles guzzle error event.
      *
      * @param ErrorEvent $event
      */

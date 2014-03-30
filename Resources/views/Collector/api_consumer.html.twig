@@ -93,9 +93,35 @@
             background: #ffcc00;
         }
 
+        span.error {
+            color: #a33;
+        }
+
         ul.alt li:hover {
             background: #f6f6f6;
         }
+
+        ul.alt li.even:hover {
+            background: #E5F5BC;
+        }
+
+        ul.alt li.error:hover {
+            background: #FF4B4B;
+        }
+
+
+        ul.alt li {
+            cursor: pointer;
+        }
+
+        ul.alt li.togglable-open {
+            height: auto;
+        }
+
+        ul.alt li.togglable-closed {
+            height: 16px;
+            overflow: hidden;
+        }        
 
         .pull-right {
             float: right;
@@ -107,7 +133,7 @@
     {% if collector.hasCalls %}
         <ul class="alt">
             {% for call in collector.calls %}
-                <li class="{% if loop.index is even %}even{% else %}odd{% endif %} {% if call.hasError %}error{% endif %}">
+                <li class="togglable togglable-closed {% if loop.index is even %}even{% else %}odd{% endif %} {% if call.hasError %}error{% endif %}">
                     {% if call.hasResponse %}
                         <span class="r-label r-label-{% if call.hasError %}red{% elseif call.hasWarning %}yellow{% else %}green {% endif %}">{{ call.responseStatusCode }}</span>
                     {% endif %} 
@@ -134,9 +160,11 @@
 
                     <div class="ex-info-box">
                         {% if call.errorString %}
-                            <span class="small-header">Error message</span>
-                            <em>{{ call.errorString }}</em>
-                        {% endif %}                    
+                            <small>
+                                <strong>Error:</strong>
+                                <span class="error">{{ call.errorString }}</span>
+                            </small>
+                        {% endif %}
                         {% if call.hasRequestHeaders %}
                             <span class="small-header">Request Headers</span>
                             {{ _self.show_headers(call.requestHeaders )}}
@@ -156,6 +184,24 @@
     {% else %}
         <p><em>No API calls were made for this request.</em></p>
     {% endif %}
+    <script type="text/javascript">
+        var togglables = document.getElementsByClassName('togglable');
+        var toggle = function(e) {
+            var togglable = e.target;
+            
+            if(Sfjs.hasClass(togglable, 'togglable-open')) {
+                Sfjs.removeClass(togglable, 'togglable-open');
+                Sfjs.addClass(togglable, 'togglable-closed');
+            } else if(Sfjs.hasClass(togglable, 'togglable-closed')) {
+                Sfjs.removeClass(togglable, 'togglable-closed');
+                Sfjs.addClass(togglable, 'togglable-open');
+            }                
+        }
+
+        for(var i = 0; i < togglables.length; ++i) {
+            togglables[i].onclick = toggle;
+        }
+    </script>    
 {% endblock %}
 
 {% macro show_headers(headers) %}
