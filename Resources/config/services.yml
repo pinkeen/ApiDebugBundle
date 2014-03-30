@@ -1,0 +1,19 @@
+services:
+    data_collector.api_consumer:
+        class: Pinkeen\ApiDebugBundle\DataCollector\ApiConsumerDataCollector
+        tags:
+            - { name: data_collector, template: "PinkeenApiDebugBundle:Collector:api_consumer.html.twig", id: "api_consumer" }
+            - { name: kernel.event_listener, event: api_call, method: collectCall }
+
+    # GUZZLE
+    # TODO: How to make guzzle an optional dependency? Via semantic configuration?
+
+    guzzle.collecting_subscriber:
+        class: Pinkeen\ApiDebugBundle\Bridge\Guzzle\Subscriber\DataCollectingSubscriber
+        arguments: [@event_dispatcher]
+
+    guzzle.client_factory:
+        class: Pinkeen\ApiDebugBundle\Bridge\Guzzle\Service\GuzzleClientFactory
+        arguments: [@guzzle.collecting_subscriber]
+
+

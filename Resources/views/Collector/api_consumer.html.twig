@@ -1,0 +1,26 @@
+{% extends 'WebProfilerBundle:Profiler:layout.html.twig' %}
+
+{% block toolbar %}
+        {% set icon %}
+            <img width="16" height="28" alt="API" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcAgMAAAAVX9eJAAAAA3NCSVQICAjb4U/gAAAACVBMVEUAAAA/Pz+4uLjfnSu+AAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAADhJREFUCFtjYIAAFhAhCiJCHRgYGEMDGBhYQ0OgXDCxihKigQFCcK1awcDAtGoBlMugBbKRgwECACQCGHnyve7YAAAAAElFTkSuQmCC"/>
+            {% if collector.calls|length > 0 %}
+                <span class="sf-toolbar-status sf-toolbar-status-green">{{ collector.calls|length }}</span>
+            {% endif %}
+        {% endset %}
+
+        {% include '@WebProfiler/Profiler/toolbar_item.html.twig' with { 'link': profiler_url } %}
+{% endblock %}
+
+{% block menu %}
+    <span class="label">
+        <span class="icon"><img alt="API" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcAgMAAAAVX9eJAAAAA3NCSVQICAjb4U/gAAAACVBMVEUAAAA/Pz+4uLjfnSu+AAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAADhJREFUCFtjYIAAFhAhCiJCHRgYGEMDGBhYQ0OgXDCxihKigQFCcK1awcDAtGoBlMugBbKRgwECACQCGHnyve7YAAAAAElFTkSuQmCC"/></span>
+        <strong>API</strong>
+        {% if collector.calls|length > 0 %}
+            <span class="count"><span>{{ collector.calls|length }}</span></span>
+        {% endif %}
+    </span>
+{% endblock %}
+
+{% block panel %}
+    <h2>API Calls</h2>
+{% endblock %}
