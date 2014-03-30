@@ -2,12 +2,12 @@
 
 namespace Pinkeen\ApiDebugBundle\Bridge\Guzzle\DataCollector;
 
-use Pinkeen\ApiDebugBundle\DataCollector\ApiCallDataInterface;
+use Pinkeen\ApiDebugBundle\DataCollector\AbstractApiCallData;
 
 use GuzzleHttp\Message\RequestInterface;
 use GuzzleHttp\Message\ResponseInterface;
 
-class GuzzleApiCallData implements ApiCallDataInterface
+class GuzzleApiCallData extends AbstractApiCallData
 {
     /**
      * @var bool
@@ -74,7 +74,7 @@ class GuzzleApiCallData implements ApiCallDataInterface
      */
     public function getMethod()
     {
-        return $this->method();
+        return $this->method;
     }
 
     /**

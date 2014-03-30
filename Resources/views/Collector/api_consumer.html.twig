@@ -3,9 +3,7 @@
 {% block toolbar %}
         {% set icon %}
             <img width="16" height="28" alt="API" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcAgMAAAAVX9eJAAAAA3NCSVQICAjb4U/gAAAACVBMVEUAAAA/Pz+4uLjfnSu+AAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAADhJREFUCFtjYIAAFhAhCiJCHRgYGEMDGBhYQ0OgXDCxihKigQFCcK1awcDAtGoBlMugBbKRgwECACQCGHnyve7YAAAAAElFTkSuQmCC"/>
-            {% if collector.calls|length > 0 %}
-                <span class="sf-toolbar-status sf-toolbar-status-green">{{ collector.calls|length }}</span>
-            {% endif %}
+            <span class="sf-toolbar-status sf-toolbar-status-green">{{ collector.calls|length }}</span>
         {% endset %}
 
         {% include '@WebProfiler/Profiler/toolbar_item.html.twig' with { 'link': profiler_url } %}
@@ -15,12 +13,75 @@
     <span class="label">
         <span class="icon"><img alt="API" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAcAgMAAAAVX9eJAAAAA3NCSVQICAjb4U/gAAAACVBMVEUAAAA/Pz+4uLjfnSu+AAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAADhJREFUCFtjYIAAFhAhCiJCHRgYGEMDGBhYQ0OgXDCxihKigQFCcK1awcDAtGoBlMugBbKRgwECACQCGHnyve7YAAAAAElFTkSuQmCC"/></span>
         <strong>API</strong>
-        {% if collector.calls|length > 0 %}
+        {% if collector.hasCalls %}
             <span class="count"><span>{{ collector.calls|length }}</span></span>
         {% endif %}
     </span>
 {% endblock %}
 
 {% block panel %}
+    <style type="text/css">
+        .http-header {
+            color: #545454;
+            font-size: 11px;
+            margin-left: 10px;
+        }
+
+        .http-header strong {
+            color: #545454;
+        }
+
+        .small-header {
+            color: #313131;
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .ex-info-box {
+            padding: 5px;
+            background: #fff;
+            margin: 5px 0 0 0;
+        }
+    </style>
+
     <h2>API Calls</h2>
+    {% if collector.hasCalls %}
+        <ul class="alt">
+            {% for call in collector.calls %}
+                <li class="{% if loop.index is even %}even{% else %}odd{% endif %}">
+                    <strong>{{ call.method }}</strong>
+                    {{ call.url }}
+                    {% if call.hasResponse %}
+                        <em>{{ call.responseStatusCode }}</em>
+                    {% endif %} 
+                    <div class="ex-info-box">
+                        {% if call.hasRequestHeaders %}
+                            <span class="small-header">Request Headers</span>
+                            {{ _self.show_headers(call.requestHeaders )}}
+                        {% endif %}
+                        {% if call.urlQueryParameters %}
+                            <span class="small-header">Query Parameters</span>
+                            {{ _self.show_headers(call.urlQueryParameters )}}
+                        {% endif %}
+                        {% if call.hasResponseHeaders %}
+                            <span class="small-header">Response Headers</span>
+                            {{ _self.show_headers(call.responseHeaders )}}
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p><em>No API calls were made for this request.</em></p>
+    {% endif %}
 {% endblock %}
+
+{% macro show_headers(headers) %}
+    {% for name, value in headers %}
+        <div class="http-header">
+            <strong>{{ name }}:</strong>
+            {{ value|join(',') }}{% if not loop.last %}<br/>{% endif %}
+        </div>
+    {% endfor %}
+{% endmacro %}

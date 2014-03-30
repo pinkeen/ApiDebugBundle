@@ -20,26 +20,25 @@ class GuzzleClientFactory
     /**
      * @param DataCollectingSubscriber $collectingSubscriber
      */
-	public function __construct(DataCollectingSubscriber $collectingSubscriber)
-	{
+    public function __construct(DataCollectingSubscriber $collectingSubscriber)
+    {
         $this->collectingSubscriber = $collectingSubscriber;
-	}
+    }
 
-	/**
-	 * Creates a new Guzzle client.
-	 *
-	 * The client is automatically integrated with
-	 * additional services like request logging.
-	 *
-	 * @param array $config
-	 * @return GuzzleHttp\Client
-	 */
-	public function create($config = [])
-	{
-		$client = new GuzzleHttp\Client($config);
-
+    /**
+     * Creates a new Guzzle client.
+     *
+     * The client is automatically integrated with
+     * additional services like request logging.
+     *
+     * @param array $config
+     * @return GuzzleHttp\Client
+     */
+    public function create($config = [])
+    {
+        $client = new GuzzleHttp\Client($config);
         $client->getEmitter()->attach($this->collectingSubscriber);
 
         return $client;
-	}
+    }
 }

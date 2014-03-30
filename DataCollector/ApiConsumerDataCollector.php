@@ -15,7 +15,10 @@ class ApiConsumerDataCollector extends DataCollector
 {
     public function __construct()
     {
-        $this->data['calls'] = [];
+        $this->data = [
+            'calls' => [],
+            'apis' => [],
+        ];
     }
 
     /**
@@ -32,12 +35,33 @@ class ApiConsumerDataCollector extends DataCollector
      */
     public function collectCall(ApiCallEvent $event)
     {
-        $this->data['calls'][] = $event->getData();
+        $callData = $event->getData();
+
+        $this->data['calls'][] = $callData;
+
+        if(!in_array($callData->getApiName(), $this->data['apis'])) {
+            $this->data['apis'][] = $callData->getApiName();
+        }
     }
 
+    /**
+     * Returns array of call data items.
+     *
+     * @return array
+     */
     public function getCalls()
     {
         return $this->data['calls'];
+    }
+
+    /**
+     * Returns true if any calls were collected.
+     *
+     * @return bool
+     */
+    public function hasCalls()
+    {
+        return !empty($this->data['calls']);
     }
 
     /**

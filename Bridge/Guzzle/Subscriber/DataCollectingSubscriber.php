@@ -67,7 +67,7 @@ class DataCollectingSubscriber implements SubscriberInterface
      * @param RequestInterface $request
      * @param ResponseInterface $response
      */
-    protected function collect(RequestInterface $request, ResponseInterface $response)
+    protected function collect(RequestInterface $request, ResponseInterface $response = null)
     {
         $this->eventDispatcher->dispatch(
             ApiEvents::API_CALL, 
