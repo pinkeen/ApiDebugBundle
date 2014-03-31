@@ -47,7 +47,7 @@ abstract class AbstractApiCallData implements \Serializable
     /**
      * Returns HTTP resonse code.
      *
-     * @return int
+     * @return string
      */
     abstract public function getResponseStatusCode();
 
@@ -83,16 +83,18 @@ abstract class AbstractApiCallData implements \Serializable
     abstract public function getErrorString();
 
     /**
-     * Should return true if the request is possibly ok
-     * but it's not certain. This is the case with 404 codes
-     * which are common in rest APIs and perfectly normal
-     * in some applications.
+     * Should return true for 3xx status codes and
+     * other suspicious responses.
      * 
      * @return bool
      */
     public function hasWarning()
     {
-        if($this->getResponseStatusCode() == 404) {
+        if(!$this->hasResponse()) {
+            return false;
+        }
+
+        if(in_array($this->getResponseStatusCode()[0], [1, 3])) {
             return true;
         }
 
@@ -104,7 +106,11 @@ abstract class AbstractApiCallData implements \Serializable
      */
     public function hasError()
     {
-        return false !== $this->getErrorString();
+        return 
+            false !== $this->getErrorString() || 
+            !$this->hasResponse() ||
+            in_array($this->getResponseStatusCode()[0], [4, 5])
+        ;
     }
 
     /**

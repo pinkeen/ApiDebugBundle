@@ -42,7 +42,7 @@ class GuzzleApiCallData extends AbstractApiCallData
     private $responseHeaders;   
 
     /**
-     * @var int
+     * @var string
      */
     private $statusCode; 
 
@@ -85,12 +85,12 @@ class GuzzleApiCallData extends AbstractApiCallData
         $this->requestBody = $this->normalizeBody($request->getBody());
 
         if(null !== $exception) {
-            $this->errorString = $exception->getMessage();
+            $this->errorString = get_class($exception) . ": " . $exception->getMessage();
         }
 
         if(null !== $response) {
             $this->hasResponse = true;
-            $this->statusCode = intval($response->getStatusCode());
+            $this->statusCode = $response->getStatusCode();
             $this->responseHeaders = $this->normalizeHeaders($response->getHeaders());
             $this->responseBody = $this->normalizeBody($response->getBody());
         }

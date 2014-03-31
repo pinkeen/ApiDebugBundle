@@ -49,6 +49,12 @@ class DataCollectingSubscriber implements SubscriberInterface
      */
     public function onComplete(CompleteEvent $event)
     {
+        if(null !== $event->getResponse() && in_array($event->getResponse()->getStatusCode()[0], [4, 5])) {
+            /* Status code indicates an error so skip this event because
+             * an error event should be emitted subsequently */
+            return;
+        }
+
         $this->collect($event->getRequest(), $event->getResponse(), null, $event->getTransferInfo());
     }
 
