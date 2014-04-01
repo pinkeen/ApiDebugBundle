@@ -1,6 +1,6 @@
 {
-    "name": "PinkeenApiDebugBundle",
-    "version": "1.0.0-beta",
+    "name": "pinkeen/api-debug-bundle",
+    "version": "0.1",
     "description": "Allows easy API consumer debugging with web debug toolbar extension.",
     "keywords": ["symfony", "guzzle", "debug", "toolbar", "bundle", "api"],
     "type": "symfony-bundle",
