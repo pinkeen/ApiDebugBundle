@@ -3,6 +3,8 @@
 namespace Pinkeen\ApiDebugBundle\Bridge\Guzzle\DataCollector;
 
 use Pinkeen\ApiDebugBundle\DataCollector\AbstractApiCallData;
+use Pinkeen\ApiDebugBundle\DataCollector\ApiCallRequestData;
+use Pinkeen\ApiDebugBundle\DataCollector\ApiCallResponseData;
 
 use GuzzleHttp\Message\RequestInterface;
 use GuzzleHttp\Message\ResponseInterface;
@@ -17,49 +19,9 @@ class GuzzleApiCallData extends AbstractApiCallData
     const BODY_SIZE_LIMIT = 4096;
 
     /**
-     * @var bool
-     */
-    private $hasResponse = false;
-
-    /**
-     * @var string
-     */
-    private $method;
-
-    /**
-     * @var string
-     */
-    private $url;
-
-    /**
-     * @var array
-     */
-    private $requestHeaders;
-
-    /**
-     * @var array
-     */
-    private $responseHeaders;   
-
-    /**
-     * @var string
-     */
-    private $statusCode; 
-
-    /**
      * @var string
      */
     private $apiName;
-
-    /**
-     * @var string
-     */
-    private $requestBody = null;
-
-    /**
-     * @var string
-     */
-    private $responseBody = null;
 
     /**
      * @var string
@@ -79,21 +41,30 @@ class GuzzleApiCallData extends AbstractApiCallData
      */
     public function __construct(RequestInterface $request, ResponseInterface $response = null, TransferException $exception = null, array $transferInfo = null)
     {
-        $this->method = $request->getMethod();
-        $this->url = $request->getUrl();
-        $this->requestHeaders = $this->normalizeHeaders($request->getHeaders());
-        $this->requestBody = $this->normalizeBody($request->getBody());
+        $requestData = new ApiCallRequestData(
+            $this->normalizeHeaders($request->getHeaders()),
+            $this->normalizeBody($request->getBody()),
+            $request->getMethod(),
+            $request->getUrl(),
+            $request->getBody() ? $request->getBody()->getSize() : null
+        );
+
+        $responseData = null;
+
+        if(null !== $response) {
+            $responseData = new ApiCallResponseData(
+                $this->normalizeHeaders($response->getHeaders()),
+                $this->normalizeBody($response->getBody()),
+                $response->getStatusCode(),
+                $response->getBody() ? $response->getBody()->getSize() : null
+            );
+        }
+
+        parent::__construct($requestData, $responseData);
 
         if(null !== $exception) {
             $this->errorString = get_class($exception) . ": " . $exception->getMessage();
-        }
-
-        if(null !== $response) {
-            $this->hasResponse = true;
-            $this->statusCode = $response->getStatusCode();
-            $this->responseHeaders = $this->normalizeHeaders($response->getHeaders());
-            $this->responseBody = $this->normalizeBody($response->getBody());
-        }
+        }        
 
         if(null !== $transferInfo && isset($transferInfo['total_time'])) {
             $this->totalTime = $transferInfo['total_time'];
@@ -147,132 +118,36 @@ class GuzzleApiCallData extends AbstractApiCallData
     /**
      * {@inheritDoc}
      */
-    public function hasResponse()
-    {
-        return $this->hasResponse;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getMethod()
-    {
-        return $this->method;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getUrl()
-    {
-        return $this->url;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getResponseStatusCode()
-    {
-        return $this->statusCode;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getRequestHeaders()
-    {
-        return $this->requestHeaders;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getResponseHeaders()
-    {
-        return $this->responseHeaders;
-    }
-
-    /** 
-     * @return string
-     */
-    public function getRequestBody()
-    {
-        return $this->requestBody;
-    }
-    
-    /** 
-     * @return string
-     */
-    public function getResponseBody()
-    {
-        return $this->responseBody;
-    }
-
-    /**
-     * @return string
-     */
-    public function getbody()
-    {
-        return $this->body;
-    }    
-
-    /**
-     * {@inheritDoc}
-     */
     public function getApiName()
     {
         return 'Guzzle';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getTotalTime()
-    {
-        return $this->totalTime;
     }    
 
     /**
-     * Serializes data to string.
-     *
      * @return string
      */
     public function serialize()
     {
         return serialize([
-            $this->hasResponse,
-            $this->method,
-            $this->url,
-            $this->requestHeaders,
-            $this->responseHeaders,
-            $this->statusCode,
             $this->apiName,
-            $this->requestBody,
-            $this->responseBody,
             $this->errorString,
-            $this->totalTime
+            $this->totalTime,
+            parent::serialize()
         ]);
     }
 
     /**
-     * Unserializes the data.
-     *
      * @param string $data
      */
     public function unserialize($data)
     {
         list(
-            $this->hasResponse,
-            $this->method,
-            $this->url,
-            $this->requestHeaders,
-            $this->responseHeaders,
-            $this->statusCode,
             $this->apiName,
-            $this->requestBody,
-            $this->responseBody,
             $this->errorString,
-            $this->totalTime
+            $this->totalTime,
+            $parentData
         ) = unserialize($data);
-    }
+
+        parent::unserialize($parentData);
+    }      
 }
