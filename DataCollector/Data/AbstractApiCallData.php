@@ -1,6 +1,6 @@
 <?php
 
-namespace Pinkeen\ApiDebugBundle\DataCollector;
+namespace Pinkeen\ApiDebugBundle\DataCollector\Data;
 
 /**
  * Base class for storing api call data that is to be displayed in

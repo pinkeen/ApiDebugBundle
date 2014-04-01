@@ -2,9 +2,9 @@
 
 namespace Pinkeen\ApiDebugBundle\Bridge\Guzzle\DataCollector;
 
-use Pinkeen\ApiDebugBundle\DataCollector\AbstractApiCallData;
-use Pinkeen\ApiDebugBundle\DataCollector\ApiCallRequestData;
-use Pinkeen\ApiDebugBundle\DataCollector\ApiCallResponseData;
+use Pinkeen\ApiDebugBundle\DataCollector\Data\AbstractApiCallData;
+use Pinkeen\ApiDebugBundle\DataCollector\Data\ApiCallRequestData;
+use Pinkeen\ApiDebugBundle\DataCollector\Data\ApiCallResponseData;
 
 use GuzzleHttp\Message\RequestInterface;
 use GuzzleHttp\Message\ResponseInterface;
@@ -16,7 +16,7 @@ class GuzzleApiCallData extends AbstractApiCallData
     /**
      * Size limit of the req/resp body.
      */
-    const BODY_SIZE_LIMIT = 4096;
+    const BODY_SIZE_LIMIT = 65536;
 
     /**
      * @var string
@@ -106,6 +106,14 @@ class GuzzleApiCallData extends AbstractApiCallData
 
         return null;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getTotalTime()
+    {
+        return $this->totalTime;
+    }        
 
     /**
      * {@inheritDoc}

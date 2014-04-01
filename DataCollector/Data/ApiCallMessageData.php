@@ -1,6 +1,9 @@
 <?php
 
-namespace Pinkeen\ApiDebugBundle\DataCollector;
+namespace Pinkeen\ApiDebugBundle\DataCollector\Data;
+
+use Pinkeen\ApiDebugBundle\MimeType\MimeTypeGuesser;
+use Pinkeen\ApiDebugBundle\MimeType\PrettyPrinter;
 
 /**
  * Class for storing data common between 
@@ -22,6 +25,11 @@ class ApiCallMessageData implements \Serializable
      * @var int
      */
     private $length = null;
+    
+    /**
+     * @var string
+     */
+    private $mimeType = null;
 
     /**
      * You can pass the length in case there is no Content-Length header
@@ -90,6 +98,52 @@ class ApiCallMessageData implements \Serializable
         }
 
         return $this->headers[$name];
+    }
+
+    /**
+     * Returns the mime-type from headers or tries 
+     * to guess it. Returns false if all else fails.
+     *
+     * @return string|false
+     */
+    public function getMimeType()
+    {
+        if(null !== $this->mimeType) {
+            return $this->mimeType;
+        }
+
+        if(null !== $mime = $this->getHeader('Content-Type')) {
+            return $this->mimeType = mb_strtolower(trim(explode(';', $mime)[0]));
+        }
+
+        if(!$this->hasBody()) {
+            return $this->mimeType = false;
+        }
+
+        return $this->mimeType = MimeTypeGuesser::getInstance()->guess($this->getBody());
+    }
+
+    /**
+     * Returns body prettified for HTML
+     * or false if not available or cannot
+     * be printed.
+     *
+     * @return string|false
+     */
+    public function getPrettyBody()
+    {
+        if(!$this->hasBody()) {
+            return false;
+        }
+
+        if(false === $this->getMimeType()) {
+            return false;
+        }
+
+        return PrettyPrinter::getInstance()->prettify(
+            $this->getBody(), 
+            $this->getMimeType()
+        );
     }
 
     /**

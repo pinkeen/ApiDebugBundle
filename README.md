@@ -5,7 +5,7 @@ This bundle add a web debug toolbar tab which displays information about API con
 
 It aims to be universal and allow for easy integration with SDKs and HTTP client libraries.
 
-Currently it supports [Guzzle4](https://github.com/guzzle/guzzle) out-of-the box.
+Currently it supports [Guzzle 4](https://github.com/guzzle/guzzle) out-of-the box.
 
 ## Requirements
 
@@ -16,7 +16,7 @@ Currently it supports [Guzzle4](https://github.com/guzzle/guzzle) out-of-the box
 
 The usual [Symfony stuff](http://symfony.com/doc/current/cookbook/bundles/installation.html).
 
-The **composer.json** needs: `"pinkeen/api-debug-bundle": "*",`.
+The **composer.json** needs: `"pinkeen/api-debug-bundle": "dev-master",`.
 
 The **AppKernel.php** needs: `new Pinkeen\ApiDebugBundle\PinkeenApiDebugBundle(),`.
 
@@ -25,10 +25,10 @@ The **AppKernel.php** needs: `new Pinkeen\ApiDebugBundle\PinkeenApiDebugBundle()
 ### Integrate with your custom client
 
 Firstly you have to subclass 
-[`Pinkeen\ApiDebugBundle\DataCollector\AbstractApiCallData`](DataCollector/AbstractApiCallData.php) 
+[`AbstractApiCallData`](DataCollector/AbstractApiCallData.php) 
 which holds data from a single API request.
 
-Then every time your API consumer makes a request dispatch an `Pinkeen\ApiDebugBundle\ApiEvents::API_CALL` event.
+Then every time your API consumer makes a request dispatch an [`ApiEvents::API_CALL`](ApiEvents.php) event.
 
 ```php
     use Pinkeen\ApiDebugBundle\ApiEvents;
@@ -52,7 +52,7 @@ You've got two options here, either:
 
 ```php
     $serviceContainer->get('guzzle.client_factory')->create([
-        /* Guzzle client config.
+        /* Guzzle client config (optional).
          * It is passed directly to GuzzleHttp\Client constructor. */
     ]);
 ```
@@ -74,7 +74,7 @@ You should take care of that yourself, unless you're using `guzzle.client_factor
 ## Response/request body 
 
 You will not be able to view the request/response body under certain circumstances even if it was present:
- * The body was too large to be collected. (> 4KiB)
+ * The body was too large to be collected. (> 64KiB)
  * The response stream is not seekable so it can be read only once and was left alone.
  * The content-type of body data could not be determined so it is not showed to prevent garbage output.
  
