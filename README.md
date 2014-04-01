@@ -1,7 +1,7 @@
 ApiDebugBundle
 ==============
 
-![ApiDebugBundle in action](Resources/doc/meta/images/)
+![ApiDebugBundle in action](Resources/doc/meta/images/apidebug.png)
 
 This bundle add a web debug toolbar tab which displays information about API consumer requests.
 
