@@ -46,6 +46,7 @@ class PrettyPrinter
             case 'text/html':
                 return $this->printHtml($buffer);  
             case 'application/x-www-form-urlencoded':
+                return $this->printFormData($buffer);
             case '...images..': /* Will be displayed using base64 :) */
         }   
 
@@ -125,6 +126,16 @@ class PrettyPrinter
 
         return $this->printCode($buffer);
     }    
+
+    /**
+     * @param string $buffer
+     */
+    protected function printFormData($buffer)
+    {
+        parse_str($buffer, $data);
+
+        return $this->printCode(print_r($data, true));
+    }
 
     public static function getInstance()
     {
