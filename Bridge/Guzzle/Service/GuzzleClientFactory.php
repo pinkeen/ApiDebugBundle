@@ -18,11 +18,18 @@ class GuzzleClientFactory
     protected $collectingSubscriber;
 
     /**
-     * @param DataCollectingSubscriber $collectingSubscriber
+     * @var bool
      */
-    public function __construct(DataCollectingSubscriber $collectingSubscriber)
+    protected $debug;
+
+    /**
+     * @param DataCollectingSubscriber $collectingSubscriber
+     * @param bool $debug In debug mode?
+     */
+    public function __construct(DataCollectingSubscriber $collectingSubscriber, $debug)
     {
         $this->collectingSubscriber = $collectingSubscriber;
+        $this->debug = $debug;
     }
 
     /**
@@ -37,7 +44,10 @@ class GuzzleClientFactory
     public function create($config = [])
     {
         $client = new GuzzleHttp\Client($config);
-        $client->getEmitter()->attach($this->collectingSubscriber);
+
+        if($this->debug) {
+            $client->getEmitter()->attach($this->collectingSubscriber);
+        }
 
         return $client;
     }

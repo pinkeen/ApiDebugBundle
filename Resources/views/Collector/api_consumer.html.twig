@@ -138,17 +138,19 @@
             {% for call in collector.calls %}
                 <li class="togglable togglable-closed {% if loop.index is even %}even{% else %}odd{% endif %} {% if call.hasError %}error{% endif %}">
                     {% if call.hasResponse %}
-                        <span class="r-label r-label-{% if call.hasError %}red{% elseif call.hasWarning %}yellow{% else %}green {% endif %}">{{ call.responseStatusCode }}</span>
+                        <span class="r-label r-label-{% if call.hasError %}red{% elseif call.hasWarning %}yellow{% else %}green {% endif %}">
+                            {{ call.responseData.statusCode }}
+                        </span>
                     {% endif %} 
 
-                    <strong>{{ call.method }}</strong>
+                    <strong>{{ call.requestData.method }}</strong>
 
-                    {{ call.url }}
+                    <a href="{{ call.requestData.url }}" target="_blank">{{ call.requestData.url }}</a>
 
                     <div class="pull-right">
-                        {% if call.responseLength %}
+                        {% if call.responseData.length %}
                             <span class="r-label">
-                                {{ (call.responseLength / 1024)|number_format(2) }} KiB
+                                {{ (call.responseData.length / 1024)|number_format(2) }} KiB
                             </span>
                         {% endif %}
                         {% if call.totalTime %}
@@ -168,17 +170,17 @@
                                 <span class="error">{{ call.errorString }}</span>
                             </small>
                         {% endif %}
-                        {% if call.hasRequestHeaders %}
+                        {% if call.requestData.hasHeaders %}
                             <span class="small-header">Request Headers</span>
-                            {{ _self.show_headers(call.requestHeaders )}}
+                            {{ _self.show_headers(call.requestData.headers )}}
                         {% endif %}
-                        {% if call.urlQueryParameters %}
+                        {% if call.requestData.urlQueryParameters %}
                             <span class="small-header">Query Parameters</span>
-                            {{ _self.show_headers(call.urlQueryParameters )}}
+                            {{ _self.show_headers(call.requestData.urlQueryParameters )}}
                         {% endif %}
-                        {% if call.hasResponseHeaders %}
+                        {% if call.responseData.hasHeaders %}
                             <span class="small-header">Response Headers</span>
-                            {{ _self.show_headers(call.responseHeaders )}}
+                            {{ _self.show_headers(call.responseData.headers )}}
                         {% endif %}
                     </div>
                 </li>

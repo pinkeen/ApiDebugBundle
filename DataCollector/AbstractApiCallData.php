@@ -9,65 +9,25 @@ namespace Pinkeen\ApiDebugBundle\DataCollector;
 abstract class AbstractApiCallData implements \Serializable
 {
     /**
-     * Array of url elements as returned by
-     * parse_url()
-     * 
-     * @var array
+     * @var ApiCallRequestData
      */
-    private $urlElements = null;
+    private $responseData = null;
 
     /**
-     * Array of url query parameters.
-     * 
-     * @var array
+     * @var ApiCallResponseData
      */
-    private $urlQueryParams = null;    
+    private $requestData = null;
 
     /**
-     * Returns true if API call received a response.
-     *
-     * @return bool
+     * @param ApiCallMessageData $requestData
      */
-    abstract public function hasResponse();
+    public function __construct(ApiCallRequestData $requestData, ApiCallResponseData $responseData = null)
+    {
+        $this->requestData = $requestData;
+        $this->responseData = $responseData;
+    }
 
     /**
-     * Returns request method.
-     *
-     * @return string
-     */
-    abstract public function getMethod();
-
-    /**
-     * Returns full URL of the API endpoint that was called.
-     * 
-     * @return string
-     */
-    abstract public function getUrl();
-
-    /**
-     * Returns HTTP resonse code.
-     *
-     * @return string
-     */
-    abstract public function getResponseStatusCode();
-
-    /**
-     * Returns request headers as an associative array.
-     *
-     * @return array
-     */
-    abstract public function getRequestHeaders();
-
-    /**
-     * Returns response headers as an associative array.
-     *
-     * @return array
-     */
-    abstract public function getResponseHeaders();
-
-    /**
-     * Returns the name of the api being called.
-     *
      * @return string
      */
     abstract public function getApiName();
@@ -83,6 +43,46 @@ abstract class AbstractApiCallData implements \Serializable
     abstract public function getErrorString();
 
     /**
+     * Returns request data.
+     *
+     * @return ApiCallRequestData
+     */
+    public function getRequestData()
+    {
+        return $this->requestData;
+    }
+
+    /**
+     * Returns request data.
+     *
+     * @return ApiCallResponseData
+     */
+    public function getResponseData()
+    {
+        return $this->responseData;
+    }
+
+    /**
+     * Returns true if API call received a response.
+     *
+     * @return bool
+     */
+    public function hasResponse() 
+    {
+        return null !== $this->responseData;
+    }    
+
+    /**
+     * Returns the total time (in seconds) spent for processing this request or false.
+     *
+     * @return float|false
+     */
+    public function getTotalTime()
+    {
+        return false;
+    }    
+
+    /**
      * Should return true for 3xx status codes and
      * other suspicious responses.
      * 
@@ -94,7 +94,7 @@ abstract class AbstractApiCallData implements \Serializable
             return false;
         }
 
-        if(in_array($this->getResponseStatusCode()[0], [1, 3])) {
+        if(in_array($this->getResponseData()->getStatusCodeLevel(), [1, 3])) {
             return true;
         }
 
@@ -109,189 +109,33 @@ abstract class AbstractApiCallData implements \Serializable
         return 
             false !== $this->getErrorString() || 
             !$this->hasResponse() ||
-            in_array($this->getResponseStatusCode()[0], [4, 5])
+            in_array($this->getResponseData()->getStatusCodeLevel(), [4, 5])
         ;
     }
 
     /**
-     * @return bool
+     * Serializes data to string.
+     *
+     * @return string
      */
-    public function hasRequestHeaders()
+    public function serialize()
     {
-        return null !== $this->getRequestHeaders() && !empty($this->getRequestHeaders());
+        return serialize([
+            $this->requestData,
+            $this->responseData
+        ]);
     }
 
     /**
-     * @return bool
+     * Unserializes the data.
+     *
+     * @param string $data
      */
-    public function hasResponseHeaders()
+    public function unserialize($data)
     {
-        return null !== $this->getResponseHeaders() && !empty($this->getResponseHeaders());
+        list(
+            $this->requestData,
+            $this->responseData
+        ) = unserialize($data);
     }    
-
-    /** 
-     * @return string
-     */
-    public function getRequestBody()
-    {
-        return null;
-    }
-
-    /** 
-     * @return string
-     */
-    public function getResponseBody()
-    {
-        return null;
-    }
-
-    /**
-     * Returns the total time (in seconds) spent for processing this request or false.
-     *
-     * @return float|false
-     */
-    public function getTotalTime()
-    {
-        return false;
-    }
-
-    /**
-     * @return int
-     */
-    public function getResponseLength()
-    {
-        if(
-            $this->hasResponseHeaders() && 
-            array_key_exists('Content-Length', $this->getResponseHeaders())
-        ) {
-            return intval($this->getResponseHeaders()['Content-Length']);
-        }
-
-        if(null !== $this->getResponseBody()) {
-            return strlen($this->getResponseBody());
-        }
-
-        return null;        
-    }
-
-    /**
-     * Returns url elements parsed by parse_url().
-     *
-     * @return array
-     */
-    protected function getUrlElements()
-    {
-        if(null === $this->urlElements) {
-            $this->urlElements = parse_url($this->getUrl());
-        }
-
-        return $this->urlElements;
-    }
-
-    /**
-     * Returns named ulr element or null if not exists.
-     *
-     * @param string $name
-     * @return string|null
-     */
-    protected function getUrlElement($name)
-    {
-        if(array_key_exists($name, $this->getUrlElements())) {
-            return $this->getUrlElements()[$name];
-        }
-
-        return null;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUrlScheme()
-    {
-        return $this->getUrlElement('scheme');
-    }
-
-    /**
-     * @return string
-     */
-    public function getUrlHost()
-    {
-        return $this->getUrlElement('host');
-    }
-
-    /**
-     * @return string
-     */
-    public function getUrlPort()
-    {
-        return $this->getUrlElement('port');
-    }
-
-    /**
-     * @return string
-     */
-    public function getUrlUser()
-    {
-        return $this->getUrlElements('user');
-    }
-
-    /**
-     * @return string
-     */
-    public function getUrlPassword()
-    {
-        return $this->getUrlElement('pass');
-    }
-
-    /**
-     * @return string
-     */
-    public function getUrlPath()
-    {
-        return $this->getUrlElement('path');
-    }
-
-    /**
-     * @return string
-     */
-    public function getUrlFragment()
-    {
-        return $this->getUrlElement('fragment');
-    }    
-
-    /**
-     * @return string
-     */
-    public function getUrlQueryString()
-    {
-        return $this->getUrlElement('query');
-    }
-
-    /**
-     * @return array
-     */
-    public function getUrlQueryParameters()
-    {
-        //parse_str($this->getQueryString(), $arr);
-
-        if(null === $this->urlQueryParams) {
-            $queryString = $this->getUrlQueryString();
-
-            if(null === $queryString) {
-                return $this->urlQueryParams = [];
-            }
-
-            $params = [];
-
-            foreach(explode('&', $queryString) as $item) {
-                list($name, $value) = explode('=', $item);
-
-                $params[$name] = $value;
-            }
-
-            $this->urlQueryParams = $params;
-        }
-
-        return $this->urlQueryParams;
-    }
 }
