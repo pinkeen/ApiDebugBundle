@@ -1,6 +1,5 @@
 {
     "name": "pinkeen/api-debug-bundle",
-    "version": "0.1",
     "description": "Allows easy API consumer debugging with web debug toolbar extension.",
     "keywords": ["symfony", "guzzle", "debug", "toolbar", "bundle", "api"],
     "type": "symfony-bundle",
@@ -10,13 +9,13 @@
             "name": "Filip Sobalski",
             "email": "pinkeen@gmail.com",
             "homepage": "http://sobalski.com/"
-        },
+        }
     ],
     "require": {
         "php": ">=5.4",
         "symfony/framework-bundle": "~2.4",
         "symfony/symfony": "~2.4",
-        "guzzlehttp/guzzle": "4.0.*@dev",
+        "guzzlehttp/guzzle": "4.0.*@dev"
     },
     "autoload":     {
         "psr-0": { "Pinkeen\\ApiDebugBundle": "" }
