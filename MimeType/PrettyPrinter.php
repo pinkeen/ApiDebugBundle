@@ -44,7 +44,9 @@ class PrettyPrinter
                 return $this->printXml($buffer);
 
             case 'text/html':
-                return $this->printHtml($buffer);                
+                return $this->printHtml($buffer);  
+            case 'application/x-www-form-urlencoded':
+            case '...images..': /* Will be displayed using base64 :) */
         }   
 
         if($mimeType === 'text/plain') {
