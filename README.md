@@ -1,6 +1,8 @@
 ApiDebugBundle
 ==============
 
+![ApiDebugBundle in action](Resources/doc/meta/images/)
+
 This bundle add a web debug toolbar tab which displays information about API consumer requests.
 
 It aims to be universal and allow for easy integration with SDKs and HTTP client libraries.
