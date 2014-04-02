@@ -100,7 +100,7 @@ class PrettyPrinter
         $dom->preserveWhiteSpace = false;
         $dom->formatOutput = true;
 
-        if(false !== $dom->loadXML($buffer)) {
+        if(false !== @$dom->loadXML($buffer)) {
             return $this->printCode($dom->saveXML(), 'xml');
         }
 
@@ -120,7 +120,7 @@ class PrettyPrinter
         $dom->preserveWhiteSpace = false;
         $dom->formatOutput = true;
 
-        if(false !== $dom->loadHTML($buffer)) {
+        if(false !== @$dom->loadHTML($buffer)) {
             return $this->printCode($dom->saveHTML(), 'html');
         }
 
