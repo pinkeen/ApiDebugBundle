@@ -9,7 +9,7 @@ use Pinkeen\ApiDebugBundle\MimeType\PrettyPrinter;
  * Class for storing data common between 
  * api call request and response.
  */
-class ApiCallMessageData implements \Serializable
+abstract class AbstractCallMessageData implements \Serializable
 {
     /**
      * @var array
@@ -17,7 +17,7 @@ class ApiCallMessageData implements \Serializable
     private $headers = null;
 
     /**
-     * @var string
+     * @var CallBody
      */
     private $body = null;
 
@@ -36,14 +36,17 @@ class ApiCallMessageData implements \Serializable
      * and body had to be discarded for various concerns.
      *
      * @param array $headers
-     * @param string $body
+     * @param string|resource $body
      * @param int $length
      */
-    public function __construct(array $headers, $body, $length = null)
+    public function __construct(array $headers = null, $body, $length = null)
     {
         $this->headers = $headers;
-        $this->body = $body;
         $this->length = $length;
+
+        if(null !== $body) {
+            $this->body = new CallBody($body);
+        }
     }
 
     /**
@@ -101,6 +104,18 @@ class ApiCallMessageData implements \Serializable
     }
 
     /**
+     * @return string
+     */
+    public function getContentTypeHeader()
+    {
+       if(null !== $mime = $this->getHeader('Content-Type')) {
+            return mb_strtolower(trim(explode(';', $mime)[0]));
+       }
+
+       return null;
+    }
+
+    /**
      * Returns the mime-type from headers or tries 
      * to guess it. Returns false if all else fails.
      *
@@ -112,15 +127,15 @@ class ApiCallMessageData implements \Serializable
             return $this->mimeType;
         }
 
-        if(null !== $mime = $this->getHeader('Content-Type')) {
-            return $this->mimeType = mb_strtolower(trim(explode(';', $mime)[0]));
+        if(null !== $this->getHeader('Content-Type')) {
+            return $this->mimeType = $this->getContentTypeHeader();
         }
 
         if(!$this->hasBody()) {
             return $this->mimeType = false;
         }
 
-        return $this->mimeType = MimeTypeGuesser::getInstance()->guess($this->getBody());
+        return $this->mimeType = $this->getBody()->guessMimeType();
     }
 
     /**
@@ -141,7 +156,7 @@ class ApiCallMessageData implements \Serializable
         }
 
         return PrettyPrinter::getInstance()->prettify(
-            $this->getBody(), 
+            $this->getBody()->getData(), 
             $this->getMimeType()
         );
     }
@@ -160,7 +175,7 @@ class ApiCallMessageData implements \Serializable
             }
 
             if(null !== $this->getBody()) {
-                return $this->length = strlen($this->getBody());
+                return $this->length = $this->getBody()->getSize();
             }
         }
 

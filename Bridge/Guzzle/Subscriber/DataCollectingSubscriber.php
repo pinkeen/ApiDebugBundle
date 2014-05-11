@@ -14,7 +14,7 @@ use GuzzleHttp\Exception\TransferException;
 
 use Pinkeen\ApiDebugBundle\ApiEvents;
 use Pinkeen\ApiDebugBundle\Event\ApiCallEvent;
-use Pinkeen\ApiDebugBundle\Bridge\Guzzle\DataCollector\GuzzleApiCallData;
+use Pinkeen\ApiDebugBundle\Bridge\Guzzle\DataCollector\GuzzleCallData;
 
 class DataCollectingSubscriber implements SubscriberInterface
 {
@@ -79,9 +79,9 @@ class DataCollectingSubscriber implements SubscriberInterface
     protected function collect(RequestInterface $request, ResponseInterface $response = null, TransferException $exception = null, array $transferInfo = null)
     {
         $this->eventDispatcher->dispatch(
-            ApiEvents::API_CALL, 
+            ApiEvents::CALL, 
             new ApiCallEvent(
-                new GuzzleApiCallData($request, $response, $exception, $transferInfo)
+                new GuzzleCallData($request, $response, $exception, $transferInfo)
             )
         );
     }

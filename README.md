@@ -22,12 +22,20 @@ The **composer.json** needs: `"pinkeen/api-debug-bundle": "dev-master",`.
 
 The **AppKernel.php** needs: `new Pinkeen\ApiDebugBundle\PinkeenApiDebugBundle(),`.
 
+Add the following to your `app/config/routing_dev.yml` if you want to be able to view raw body data:
+
+```yml
+_api_debug:
+    resource: "@PinkeenApiDebugBundle/Resources/config/routing.yml"
+    prefix:   /_profiler
+```
+
 ## Usage
 
 ### Integrate with your custom client
 
 Firstly you have to subclass 
-[`AbstractApiCallData`](DataCollector/AbstractApiCallData.php) 
+[`AbstractCallData`](DataCollector/AbstractCallData.php) 
 which holds data from a single API request.
 
 Then every time your API consumer makes a request dispatch an [`ApiEvents::API_CALL`](ApiEvents.php) event.
@@ -72,17 +80,3 @@ You've got two options here, either:
 For production environment you probably want to skip all of the data gathering.
 
 You should take care of that yourself, unless you're using `guzzle.client_factory`.
-
-## Response/request body 
-
-You will not be able to view the request/response body under certain circumstances even if it was present:
- * The body was too large to be collected. (> 64KiB)
- * The response stream is not seekable so it can be read only once and was left alone.
- * The content-type of body data could not be determined so it is not showed to prevent garbage output.
- 
-**The absence of the body in the debug toolbar does not mean that there was no body sent/received. 
-Always check the HTTP headers.**
-
-## TODO:
-Move the body size limit to semantic conf.
-

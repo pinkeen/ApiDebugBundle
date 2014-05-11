@@ -5,7 +5,7 @@ namespace Pinkeen\ApiDebugBundle\DataCollector\Data;
 /**
  * Class for storing api call request data.
  */
-class ApiCallRequestData extends ApiCallMessageData
+class CallRequestData extends AbstractCallMessageData
 {
     /**
      * Array of url elements as returned by
@@ -41,7 +41,7 @@ class ApiCallRequestData extends ApiCallMessageData
      * @param string $method
      * @param string $url
      */
-    public function __construct(array $headers, $body, $method, $url, $length = null)
+    public function __construct(array $headers = null, $body, $method, $url, $length = null)
     {
         parent::__construct($headers, $body, $length);
 

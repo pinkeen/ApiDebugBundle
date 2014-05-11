@@ -4,7 +4,7 @@ namespace Pinkeen\ApiDebugBundle\Event;
 
 use Symfony\Component\EventDispatcher\Event;
 
-use Pinkeen\ApiDebugBundle\DataCollector\Data\AbstractApiCallData;
+use Pinkeen\ApiDebugBundle\DataCollector\Data\AbstractCallData;
 
 class ApiCallEvent extends Event
 {
@@ -16,7 +16,7 @@ class ApiCallEvent extends Event
     /**
      * @param AbstractApiCallData $data;
      */
-    public function __construct(AbstractApiCallData $data)
+    public function __construct(AbstractCallData $data)
     {
         $this->data = $data;
     }

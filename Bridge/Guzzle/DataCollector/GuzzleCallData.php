@@ -2,27 +2,18 @@
 
 namespace Pinkeen\ApiDebugBundle\Bridge\Guzzle\DataCollector;
 
-use Pinkeen\ApiDebugBundle\DataCollector\Data\AbstractApiCallData;
-use Pinkeen\ApiDebugBundle\DataCollector\Data\ApiCallRequestData;
-use Pinkeen\ApiDebugBundle\DataCollector\Data\ApiCallResponseData;
+use Pinkeen\ApiDebugBundle\DataCollector\Data\AbstractCallData;
+use Pinkeen\ApiDebugBundle\DataCollector\Data\CallRequestData;
+use Pinkeen\ApiDebugBundle\DataCollector\Data\CallResponseData;
 
 use GuzzleHttp\Message\RequestInterface;
 use GuzzleHttp\Message\ResponseInterface;
 use GuzzleHttp\Stream\StreamInterface;
+use GuzzleHttp\Stream\GuzzleStreamWrapper;
 use GuzzleHttp\Exception\TransferException;
 
-class GuzzleApiCallData extends AbstractApiCallData
+class GuzzleCallData extends AbstractCallData
 {
-    /**
-     * Size limit of the req/resp body.
-     */
-    const BODY_SIZE_LIMIT = 65536;
-
-    /**
-     * @var string
-     */
-    private $apiName;
-
     /**
      * @var string
      */
@@ -41,7 +32,7 @@ class GuzzleApiCallData extends AbstractApiCallData
      */
     public function __construct(RequestInterface $request, ResponseInterface $response = null, TransferException $exception = null, array $transferInfo = null)
     {
-        $requestData = new ApiCallRequestData(
+        $requestData = new CallRequestData(
             $this->normalizeHeaders($request->getHeaders()),
             $this->normalizeBody($request->getBody()),
             $request->getMethod(),
@@ -52,7 +43,7 @@ class GuzzleApiCallData extends AbstractApiCallData
         $responseData = null;
 
         if(null !== $response) {
-            $responseData = new ApiCallResponseData(
+            $responseData = new CallResponseData(
                 $this->normalizeHeaders($response->getHeaders()),
                 $this->normalizeBody($response->getBody()),
                 $response->getStatusCode(),
@@ -76,17 +67,16 @@ class GuzzleApiCallData extends AbstractApiCallData
      * or null if not possible.
      *
      * @param StreamInterface $body
-     * @return string|null
+     * @return resource|null
      */
     private function normalizeBody(StreamInterface $body = null) 
     {
         if(
             null !== $body &&
             $body->isReadable() && 
-            $body->isSeekable() && 
-            $body->getSize() <= self::BODY_SIZE_LIMIT
+            $body->isSeekable()
         ) {
-            return strval($body);
+            return GuzzleStreamWrapper::getResource($body);
         }
 
         return null;
@@ -137,7 +127,6 @@ class GuzzleApiCallData extends AbstractApiCallData
     public function serialize()
     {
         return serialize([
-            $this->apiName,
             $this->errorString,
             $this->totalTime,
             parent::serialize()
@@ -150,7 +139,6 @@ class GuzzleApiCallData extends AbstractApiCallData
     public function unserialize($data)
     {
         list(
-            $this->apiName,
             $this->errorString,
             $this->totalTime,
             $parentData

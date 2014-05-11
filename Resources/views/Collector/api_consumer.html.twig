@@ -103,6 +103,10 @@
             background: #ffcc00;
         }
 
+        .r-label-blue {
+            background: #078CC3;
+        }        
+
         span.error {
             color: #a33;
         }
@@ -146,11 +150,20 @@
             padding: 5px;
             font-size: 11px;
             background: #FFFBD7;
+            min-height: 11px;
         }
 
         .pull-right {
             float: right;
             clear: right;
+        }
+
+        .body-link {
+            font-size: 11px;
+            font-weight: bold;
+            text-decoration: none;
+            color: #D5BF02;
+            float: right;
         }
     </style>
 
@@ -193,38 +206,34 @@
                                 <span class="error">{{ call.errorString }}</span>
                             </small><br/>
                         {% endif %}
-                        {% if call.requestData.mimeType %}
+                        {% if call.requestData.mimeType and call.requestData.mimeType != call.requestData.contentTypeHeader %}
                             <small>
-                                <strong>Mime:</strong> {{ call.requestData.mimeType }}
+                                <strong>Guessed mime:</strong> {{ call.requestData.mimeType }}
                             </small>
                         {% endif %}
                         {% if call.requestData.hasHeaders %}
                             <span class="small-header">Request Headers</span>
-                            {{ _self.show_headers(call.requestData.headers )}}
+                            {{ _self.show_headers(call.requestData.headers) }}
                         {% endif %}
                         {% if call.requestData.urlQueryParameters %}
                             <span class="small-header">Query Parameters</span>
-                            {{ _self.show_headers(call.requestData.urlQueryParameters )}}
+                            {{ _self.show_headers(call.requestData.urlQueryParameters) }}
                         {% endif %}
-                        {% if call.requestData.hasBody %}                            
-                            <div class="msg-body">{{ call.requestData.prettyBody|raw }}</div>
-                        {% endif %}
+                        {{ _self.show_body(call.requestData) }}
                     </div>
                     {% if call.hasResponse %}
                         <div class="tab-content"> 
                             <div class="tab-title">RESPONSE</div>
-                            {% if call.responseData.mimeType %}
+                            {% if call.responseData.mimeType and call.responseData.mimeType != call.responseData.contentTypeHeader %}
                                 <small>
-                                    <strong>Mime:</strong> {{ call.responseData.mimeType }}
+                                    <strong>Guessed mime:</strong> {{ call.responseData.mimeType }}
                                 </small>
                             {% endif %}
                             {% if call.responseData.hasHeaders %}
                                 <span class="small-header">Response Headers</span>
-                                {{ _self.show_headers(call.responseData.headers )}}
+                                {{ _self.show_headers(call.responseData.headers) }}
                             {% endif %}
-                            {% if call.responseData.hasBody %}                            
-                                <div class="msg-body">{{ call.responseData.prettyBody|raw }}</div>
-                            {% endif %}
+                            {{ _self.show_body(call.responseData) }}
                         </div>
                     {% endif %}
                 </li>
@@ -260,4 +269,22 @@
             {{ value }}{% if not loop.last %}<br/>{% endif %}
         </div>
     {% endfor %}
+{% endmacro %}
+
+{% macro show_body(messageData) %}
+    {% if messageData.hasBody %}
+        {% set rawData = messageData.prettyBody %}
+        <div class="msg-body">
+            <a class="body-link" href="{{ path('_api_debug_call_body', {id: messageData.body.fileId}) }}" target="_blank">RAW BODY</a>
+            {% if messageData.body.size < 64000 %}
+                {% if rawData %}
+                    {{ rawData|raw }}
+                {% else %}
+                    <em>Body could not be displayed.</em>
+                {% endif %}
+            {% else %}
+                <em>Body is too large to be displayed.</em>
+            {% endif %}
+        </div>
+    {% endif %}
 {% endmacro %}

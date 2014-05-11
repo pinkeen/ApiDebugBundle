@@ -5,7 +5,7 @@ namespace Pinkeen\ApiDebugBundle\DataCollector\Data;
 /**
  * Class for storing api call response data.
  */
-class ApiCallResponseData extends ApiCallMessageData
+class CallResponseData extends AbstractCallMessageData
 {
     /**
      * @var string
@@ -15,7 +15,7 @@ class ApiCallResponseData extends ApiCallMessageData
     /**
      * {@inheritDoc}
      */
-    public function __construct(array $headers, $body, $statusCode, $length = null)
+    public function __construct(array $headers = null, $body, $statusCode, $length = null)
     {
         parent::__construct($headers, $body, $length);
 

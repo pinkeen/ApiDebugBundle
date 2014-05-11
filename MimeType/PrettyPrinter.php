@@ -96,6 +96,8 @@ class PrettyPrinter
             return $this->printCode($buffer);   
         }
 
+        /* DOMDocument adds stuff that isn't present
+         * in original data.
         $dom = new \DOMDocument();
         $dom->preserveWhiteSpace = false;
         $dom->formatOutput = true;
@@ -103,6 +105,7 @@ class PrettyPrinter
         if(false !== @$dom->loadXML($buffer)) {
             return $this->printCode($dom->saveXML(), 'xml');
         }
+        */
 
         return $this->printCode($buffer);
     }
@@ -116,6 +119,9 @@ class PrettyPrinter
             return $this->printCode($buffer);   
         }
 
+        /* DOMDocuments doesn't forma HTML well... 
+         * And adds stuff that isn't present in the
+         * original data.
         $dom = new \DOMDocument();
         $dom->preserveWhiteSpace = false;
         $dom->formatOutput = true;
@@ -123,6 +129,7 @@ class PrettyPrinter
         if(false !== @$dom->loadHTML($buffer)) {
             return $this->printCode($dom->saveHTML(), 'html');
         }
+        */
 
         return $this->printCode($buffer);
     }    

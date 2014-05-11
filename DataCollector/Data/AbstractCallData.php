@@ -6,22 +6,22 @@ namespace Pinkeen\ApiDebugBundle\DataCollector\Data;
  * Base class for storing api call data that is to be displayed in
  * API debug toolbar. 
  */
-abstract class AbstractApiCallData implements \Serializable
+abstract class AbstractCallData implements \Serializable
 {
     /**
-     * @var ApiCallRequestData
+     * @var CallRequestData
      */
     private $responseData = null;
 
     /**
-     * @var ApiCallResponseData
+     * @var CallResponseData
      */
     private $requestData = null;
 
     /**
-     * @param ApiCallMessageData $requestData
+     * @param CallMessageData $requestData
      */
-    public function __construct(ApiCallRequestData $requestData, ApiCallResponseData $responseData = null)
+    public function __construct(CallRequestData $requestData, CallResponseData $responseData = null)
     {
         $this->requestData = $requestData;
         $this->responseData = $responseData;
@@ -45,7 +45,7 @@ abstract class AbstractApiCallData implements \Serializable
     /**
      * Returns request data.
      *
-     * @return ApiCallRequestData
+     * @return CallRequestData
      */
     public function getRequestData()
     {
@@ -55,7 +55,7 @@ abstract class AbstractApiCallData implements \Serializable
     /**
      * Returns request data.
      *
-     * @return ApiCallResponseData
+     * @return CallResponseData
      */
     public function getResponseData()
     {

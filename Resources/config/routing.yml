@@ -1,0 +1,3 @@
+_api_debug_call_body:
+    pattern: /call/{id}/body
+    defaults: { _controller: PinkeenApiDebugBundle:Call:body }
