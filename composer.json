@@ -14,9 +14,9 @@
     "require": {
         "php": ">=5.4",
         "symfony/framework-bundle": "~2.4",
-        "symfony/symfony": "~2.4",
-        "guzzlehttp/guzzle": "4.2",
-        "guzzlehttp/streams": "1.1.0"
+    },
+    "suggest": {
+        "guzzlehttp/guzzle": "Install for easy API calling and integrated debugging."
     },
     "autoload":     {
         "psr-0": { "Pinkeen\\ApiDebugBundle": "" }
