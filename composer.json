@@ -17,7 +17,7 @@
         "symfony/symfony": "~2.4"
     },
     "suggest": {
-        "guzzlehttp/guzzle": "Install for easy API calling and integrated debugging.",
+        "guzzlehttp/guzzle": "Install for easy API calling and integrated debugging."
     },
     "autoload":     {
         "psr-0": { "Pinkeen\\ApiDebugBundle": "" }
