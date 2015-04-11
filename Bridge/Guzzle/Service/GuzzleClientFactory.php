@@ -3,8 +3,7 @@
 namespace Pinkeen\ApiDebugBundle\Bridge\Guzzle\Service;
 
 use GuzzleHttp;
-
-use Pinkeen\ApiDebugBundle\Bridge\Guzzle\Subscriber\DataCollectingSubscriber;
+use Pinkeen\ApiDebugBundle\Bridge\Guzzle\Middleware\DataCollectorMiddleware;
 
 /**
  * Fabricates Guzzle clients with bundle
@@ -13,9 +12,9 @@ use Pinkeen\ApiDebugBundle\Bridge\Guzzle\Subscriber\DataCollectingSubscriber;
 class GuzzleClientFactory
 {
     /**
-     * @var DataCollectingSubscriber
+     * @var DataCollectorMiddleware
      */
-    protected $collectingSubscriber;
+    protected $collector;
 
     /**
      * @var bool
@@ -23,12 +22,12 @@ class GuzzleClientFactory
     protected $debug;
 
     /**
-     * @param DataCollectingSubscriber $collectingSubscriber
+     * @param DataCollectorMiddleware $collector
      * @param bool $debug In debug mode?
      */
-    public function __construct(DataCollectingSubscriber $collectingSubscriber, $debug)
+    public function __construct(DataCollectorMiddleware $collector, $debug)
     {
-        $this->collectingSubscriber = $collectingSubscriber;
+        $this->collector = $collector;
         $this->debug = $debug;
     }
 
@@ -43,12 +42,18 @@ class GuzzleClientFactory
      */
     public function create($config = [])
     {
-        $client = new GuzzleHttp\Client($config);
-
-        if($this->debug) {
-            $client->getEmitter()->attach($this->collectingSubscriber);
+        if ($this->debug) {
+            if (isset($config['handler']) && $config['handler'] instanceof GuzzleHttp\HandlerStack) {
+                /** @var GuzzleHttp\HandlerStack $handler */
+                $handler = $config['handler'];
+                $handler->push($this->collector->getHandler());
+            } else {
+                $handler = new GuzzleHttp\HandlerStack(new GuzzleHttp\Handler\CurlHandler());
+                $handler->push($this->collector->getHandler());
+                $config['handler'] = $handler;
+            }
         }
 
-        return $client;
+        return new GuzzleHttp\Client($config);
     }
 }

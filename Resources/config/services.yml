@@ -8,12 +8,12 @@ services:
     # GUZZLE
     # TODO: How to make guzzle an optional dependency? Via semantic configuration?
 
-    guzzle.collecting_subscriber:
-        class: Pinkeen\ApiDebugBundle\Bridge\Guzzle\Subscriber\DataCollectingSubscriber
+    guzzle.collector_middleware:
+        class: Pinkeen\ApiDebugBundle\Bridge\Guzzle\Middleware\DataCollectorMiddleware
         arguments: [@event_dispatcher]
 
     guzzle.client_factory:
         class: Pinkeen\ApiDebugBundle\Bridge\Guzzle\Service\GuzzleClientFactory
-        arguments: [@guzzle.collecting_subscriber, %kernel.debug%]
+        arguments: [@guzzle.collector_middleware, %kernel.debug%]
 
 

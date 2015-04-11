@@ -19,7 +19,7 @@ class CallResponseData extends AbstractCallMessageData
     {
         parent::__construct($headers, $body, $length);
 
-        $this->statusCode = $statusCode;
+        $this->statusCode = (string)$statusCode;
     }
 
     /**

@@ -9,12 +9,12 @@ use Pinkeen\ApiDebugBundle\DataCollector\Data\AbstractCallData;
 class ApiCallEvent extends Event
 {
     /**
-     * @var AbstractApiCallData
+     * @var AbstractCallData
      */
     protected $data;
 
     /**
-     * @param AbstractApiCallData $data;
+     * @param AbstractCallData $data;
      */
     public function __construct(AbstractCallData $data)
     {
@@ -22,7 +22,7 @@ class ApiCallEvent extends Event
     }
 
     /**
-     * @return ApiCallDataInterface
+     * @return AbstractCallData
      */
     public function getData()
     {

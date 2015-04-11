@@ -74,7 +74,7 @@ abstract class AbstractCallMessageData implements \Serializable
     }
 
     /**
-     * @return string|null
+     * @return CallBody|null
      */
     public function getBody()
     {

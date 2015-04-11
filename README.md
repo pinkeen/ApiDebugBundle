@@ -3,11 +3,15 @@ ApiDebugBundle
 
 ![ApiDebugBundle in action](Resources/doc/meta/images/apidebug.png)
 
-This bundle add a web debug toolbar tab which displays information about API consumer requests.
+This bundle adds a web debug toolbar tab which displays information about API consumer requests.
 
 It aims to be universal and allow for easy integration with SDKs and HTTP client libraries.
 
-Currently it supports [Guzzle 4](https://github.com/guzzle/guzzle) out-of-the box.
+Currently it supports [Guzzle 6](https://github.com/guzzle/guzzle) out-of-the box.
+
+It should be extremely easy to integrate with any http client using PSR-7 messages.
+
+For `Guzzle4`-compatible version use the `v1.0` tag.
 
 ## Requirements
 
@@ -38,6 +42,9 @@ Firstly you have to subclass
 [`AbstractCallData`](DataCollector/AbstractCallData.php) 
 which holds data from a single API request.
 
+If you are using a PSR-7 comptible client then you can use [`PsrCallData`](DataCollector\Data\PsrCallData.php)
+instead of writing your own data class.
+
 Then every time your API consumer makes a request dispatch an [`ApiEvents::API_CALL`](ApiEvents.php) event.
 
 ```php
@@ -67,12 +74,12 @@ You've got two options here, either:
     ]);
 ```
 
-*... or attach data collecting subscriber to the client you already have.*
+*... or push the collector handler to your middleware stack.*
 
 ```php
-    $guzzleClient->getEmitter()->attach(
-        $serviceContainer->get('guzzle.collecting_subscriber')
-    );
+    $handler = new GuzzleHttp\HandlerStack(new GuzzleHttp\Handler\CurlHandler());
+    $handler->push($serviceContainer->get('guzzle.collector_middleware')->getHandler());
+    $client = new GuzzleHttp\Client(['handler' => $handler]);
 ```
 
 ## Production
@@ -80,3 +87,8 @@ You've got two options here, either:
 For production environment you probably want to skip all of the data gathering.
 
 You should take care of that yourself, unless you're using `guzzle.client_factory`.
+
+## Notes 
+
+I haven't found an easy way to get call duration out of guzzle6, so there's a regression here. If anybody has an idea
+please give me a shout.

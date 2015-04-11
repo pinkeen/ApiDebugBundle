@@ -112,23 +112,26 @@
         }
 
         ul.alt li.error {
-            background: #FFCBCB;
+            margin: 0;
         }
 
-        ul.alt li:hover {
-            background: #f6f6f6;
-        }
-
-        ul.alt li.even:hover {
+        ul.alt li.success:hover {
             background: #E5F5BC;
         }
 
         ul.alt li.error:hover {
-            background: #FFA6A6;
+            background: #FFDEDE;
         }
 
         ul.alt li {
+            transition: background-color 0.1s ease-in;
             cursor: pointer;
+            border: 1px solid #d0dbb3;
+            border-bottom-width: 0;
+        }
+
+        ul.alt li:last-child {
+            border-bottom-width: 1px;
         }
 
         ul.alt li.togglable-open {
@@ -165,16 +168,27 @@
             color: #D5BF02;
             float: right;
         }
+
+        ul.alt li,
+        ul.alt li.even,
+        ul.alt li.odd,
+        ul.alt li.error {
+            background-color: #fff;
+        }
     </style>
 
     <h2>API Calls</h2>
     {% if collector.hasCalls %}
         <ul class="alt">
             {% for call in collector.calls %}
-                <li class="togglable togglable-closed {% if loop.index is even %}even{% else %}odd{% endif %} {% if call.hasError %}error{% endif %}">
+                <li class="togglable togglable-closed {% if call.hasError %}error{% else %}success{% endif %}">
                     {% if call.hasResponse %}
-                        <span class="r-label r-label-{% if call.hasError %}red{% elseif call.hasWarning %}yellow{% else %}green {% endif %}">
+                        <span class="r-label r-label-{% if call.hasError %}red{% elseif call.hasWarning %}yellow{% else %}green{% endif %}">
                             {{ call.responseData.statusCode }}
+                        </span>
+                    {% elseif call.hasError %}
+                        <span class="r-label r-label-red">
+                            EXC
                         </span>
                     {% endif %} 
 
@@ -193,9 +207,11 @@
                                 {{ call.totalTime|number_format(2) }} s
                             </span>
                         {% endif %}
-                        <span class="r-label">
-                            {{ call.apiName }}
-                        </span>
+                        {% if call.apiName %}
+                            <span class="r-label">
+                                {{ call.apiName }}
+                            </span>
+                        {% endif %}
                     </div>
 
                     <div class="tab-content">

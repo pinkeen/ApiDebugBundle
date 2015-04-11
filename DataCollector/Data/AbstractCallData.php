@@ -19,7 +19,8 @@ abstract class AbstractCallData implements \Serializable
     private $requestData = null;
 
     /**
-     * @param CallMessageData $requestData
+     * @param CallRequestData $requestData
+     * @param CallResponseData $responseData
      */
     public function __construct(CallRequestData $requestData, CallResponseData $responseData = null)
     {
@@ -34,11 +35,11 @@ abstract class AbstractCallData implements \Serializable
 
     /**
      * Returns error string if there was an error
-     * making the request. Returns false otherwise.
+     * making the request. Returns null otherwise.
      * 
      * See hasWarning first!
      *
-     * @return string|false
+     * @return string|null
      */
     abstract public function getErrorString();
 
@@ -73,13 +74,13 @@ abstract class AbstractCallData implements \Serializable
     }    
 
     /**
-     * Returns the total time (in seconds) spent for processing this request or false.
+     * Returns the total time (in seconds) spent for processing this request or null.
      *
-     * @return float|false
+     * @return float|null
      */
     public function getTotalTime()
     {
-        return false;
+        return null;
     }    
 
     /**
@@ -107,7 +108,7 @@ abstract class AbstractCallData implements \Serializable
     public function hasError()
     {
         return 
-            false !== $this->getErrorString() || 
+            $this->getErrorString() ||
             !$this->hasResponse() ||
             in_array($this->getResponseData()->getStatusCodeLevel(), [4, 5])
         ;

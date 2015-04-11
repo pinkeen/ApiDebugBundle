@@ -47,14 +47,30 @@ class PrettyPrinter
                 return $this->printHtml($buffer);  
             case 'application/x-www-form-urlencoded':
                 return $this->printFormData($buffer);
-            case '...images..': /* Will be displayed using base64 :) */
-        }   
+            case 'image/gif':
+            case 'image/jpeg':
+            case 'image/png':
+                return $this->printImage($mimeType, $buffer);
+
+        }
 
         if($mimeType === 'text/plain') {
             return $buffer;
         }
 
         return false;
+    }
+
+    /**
+     * @param string $type
+     * @param string $buffer
+     * @return string
+     */
+    protected function printImage($type, $buffer)
+    {
+        $data = 'data:' . $type . ';base64,' . base64_encode($buffer);
+
+        return '<img style="max-width: 100%; max-height: 200px;" src="' . $data . '"/>';
     }
 
     /**
@@ -75,6 +91,7 @@ class PrettyPrinter
 
     /**
      * @param string $buffer
+     * @return string
      */
     protected function printJson($buffer)
     {
@@ -85,10 +102,11 @@ class PrettyPrinter
         }
 
         return $this->printCode($buffer);
-    }    
+    }
 
     /**
      * @param string $buffer
+     * @return string
      */
     protected function printXml($buffer)
     {
@@ -112,6 +130,7 @@ class PrettyPrinter
 
     /**
      * @param string $buffer
+     * @return string
      */
     protected function printHtml($buffer)
     {
@@ -132,10 +151,11 @@ class PrettyPrinter
         */
 
         return $this->printCode($buffer);
-    }    
+    }
 
     /**
      * @param string $buffer
+     * @return string
      */
     protected function printFormData($buffer)
     {
@@ -144,6 +164,9 @@ class PrettyPrinter
         return $this->printCode(print_r($data, true));
     }
 
+    /**
+     * @return PrettyPrinter
+     */
     public static function getInstance()
     {
         if(null === self::$instance) {
