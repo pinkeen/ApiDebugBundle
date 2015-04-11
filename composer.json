@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=5.4",
-        "symfony/framework-bundle": "~2.4",
+        "symfony/framework-bundle": "~2.4"
     },
     "suggest": {
         "guzzlehttp/guzzle": "Install for easy API calling and integrated debugging."
