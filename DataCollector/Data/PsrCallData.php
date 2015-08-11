@@ -64,6 +64,7 @@ class PsrCallData extends AbstractCallData
         }
 
         $this->totalTime = $totalTime;
+        $this->apiName = $apiName;
 
         parent::__construct($requestData, $responseData);
     }
@@ -84,7 +85,10 @@ class PsrCallData extends AbstractCallData
             $body->getSize() !== 0
         ) {
             $body->rewind();
-            return $body->getContents();
+            $content = $body->getContents();
+            $body->rewind();
+
+            return $content;
         }
 
         return null;
