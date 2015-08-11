@@ -82,6 +82,19 @@ You've got two options here, either:
     $client = new GuzzleHttp\Client(['handler' => $handler]);
 ```
 
+### RingPHP
+
+Use the collector_middleware service to create your RingPHP middleware and wrap it around your base handler:
+
+```php
+    $ringPhpHandler = $serviceContainer
+        ->get('ring_php.collector_middleware')
+        ->createHandler(new GuzzleHttp\Ring\Client\CurlHandler(), 'apiname')
+    ;
+```
+
+PS Nicely integrates with elasticsearch-php 2.0.
+
 ## Production
 
 For production environment you probably want to skip all of the data gathering.
