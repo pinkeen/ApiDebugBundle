@@ -16,4 +16,8 @@ services:
         class: Pinkeen\ApiDebugBundle\Bridge\Guzzle\Service\GuzzleClientFactory
         arguments: [@guzzle.collector_middleware, %kernel.debug%]
 
+    ring_php.collector_middleware:
+        class: Pinkeen\ApiDebugBundle\Bridge\RingPHP\DataCollectorMiddleware
+        arguments: [@event_dispatcher]
+
 
