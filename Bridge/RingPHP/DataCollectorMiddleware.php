@@ -75,9 +75,18 @@ class DataCollectorMiddleware
      */
     protected function transformRequestToMessage(array $request)
     {
-        $uri = sprintf("%s://%s%s", $request['scheme'], $request['headers']['host'][0], $request['uri']);
+        $uri = sprintf("%s://%s%s",
+            isset($request['scheme']) ? $request['scheme'] : 'http',
+            $request['headers']['host'][0],
+            $request['uri']
+        );
 
-        return new Request($request['http_method'], $uri, $request['headers'], $this->transformBody($request['body']));
+        return new Request(
+            isset($request['http_method']) ? $request['http_method'] : 'GET',
+            $uri,
+            $request['headers'],
+            isset($request['body']) ? $this->transformBody($request['body']) : null
+        );
     }
 
     /**
@@ -86,7 +95,11 @@ class DataCollectorMiddleware
      */
     protected function transformResponseToMessage(array $response)
     {
-        return new Response($response['status'], $response['headers'], $this->transformBody($response['body']));
+        return new Response(
+            $response['status'],
+            $response['headers'],
+            isset($response['body']) ? $this->transformBody($response['body']) : null
+        );
     }
 
     /**
