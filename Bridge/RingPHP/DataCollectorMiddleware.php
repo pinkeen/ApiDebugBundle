@@ -54,6 +54,21 @@ class DataCollectorMiddleware
         };
     }
 
+    protected function transformBody($body)
+    {
+        /* Copying the body to temp, because for some reason the original resource sometimes get destroyed
+         * somewhere in the guzzle PSR-7 Response object. */
+        if (is_resource($body)) {
+            $temp = fopen('php://temp', 'w+');
+            stream_copy_to_stream($body, $temp);
+            fseek($temp, 0);
+            fseek($body, 0);
+            return $temp;
+        }
+
+        return $body;
+    }
+
     /**
      * @param array $request
      * @return RequestInterface
@@ -62,7 +77,7 @@ class DataCollectorMiddleware
     {
         $uri = sprintf("%s://%s%s", $request['scheme'], $request['headers']['host'][0], $request['uri']);
 
-        return new Request($request['http_method'], $uri, $request['headers'], $request['body']);
+        return new Request($request['http_method'], $uri, $request['headers'], $this->transformBody($request['body']));
     }
 
     /**
@@ -71,7 +86,7 @@ class DataCollectorMiddleware
      */
     protected function transformResponseToMessage(array $response)
     {
-        return new Response($response['status'], $response['headers'], $response['body']);
+        return new Response($response['status'], $response['headers'], $this->transformBody($response['body']));
     }
 
     /**

@@ -30,6 +30,7 @@ class CallBody implements \Serializable
             $file = fopen($this->filename, 'w');
             fseek($data, 0);
             stream_copy_to_stream($data, $file);
+            fseek($data, 0);
             fclose($file);
         } else {
             file_put_contents($this->filename, strval($data));

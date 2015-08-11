@@ -85,10 +85,7 @@ class PsrCallData extends AbstractCallData
             $body->getSize() !== 0
         ) {
             $body->rewind();
-            $content = $body->getContents();
-            $body->rewind();
-
-            return $content;
+            return $body->getContents();
         }
 
         return null;
