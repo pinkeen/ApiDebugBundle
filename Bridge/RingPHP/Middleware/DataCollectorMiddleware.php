@@ -1,6 +1,6 @@
 <?php
 
-namespace Pinkeen\ApiDebugBundle\Bridge\RingPHP;
+namespace Pinkeen\ApiDebugBundle\Bridge\RingPHP\Middleware;
 
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Request;

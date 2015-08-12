@@ -84,14 +84,19 @@ You've got two options here, either:
 
 ### RingPHP
 
-Use the collector_middleware service to create your RingPHP middleware and wrap it around your base handler:
+*Let the bundle create the handler for you:*
+
+```php
+    $handler = $serviceContainer->get('ring_php.handler_factory')->create(new CurlHandler());
+```
+
+*Use the collector_middleware service to create your RingPHP middleware and wrap it around your base handler:*
 
 ```php
     $ringPhpHandler = $serviceContainer
         ->get('ring_php.collector_middleware')
         ->createHandler(new GuzzleHttp\Ring\Client\CurlHandler(), 'apiname')
     ;
-```
 
 PS Nicely integrates with elasticsearch-php 2.0.
 
@@ -99,7 +104,8 @@ PS Nicely integrates with elasticsearch-php 2.0.
 
 For production environment you probably want to skip all of the data gathering.
 
-You should take care of that yourself, unless you're using `guzzle.client_factory`.
+You should take care of that yourself, unless you're using `guzzle.client_factory` or `ring_php.handler_factory` which
+skip it when not in debug mode.
 
 ## Notes 
 

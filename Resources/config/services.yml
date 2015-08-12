@@ -17,7 +17,9 @@ services:
         arguments: [@guzzle.collector_middleware, %kernel.debug%]
 
     ring_php.collector_middleware:
-        class: Pinkeen\ApiDebugBundle\Bridge\RingPHP\DataCollectorMiddleware
+        class: Pinkeen\ApiDebugBundle\Bridge\RingPHP\Middleware\DataCollectorMiddleware
         arguments: [@event_dispatcher]
 
-
+    ring_php.handler_factory:
+        class: Pinkeen\ApiDebugBundle\Bridge\RingPHP\Service\RingPHPHandlerFactory
+        arguments: [@ring_php.collector_middleware, %kernel.debug%]
