@@ -61,46 +61,42 @@
         .small-header {
             color: #313131;
             display: block;
-            font-size: 11px;
             font-weight: bold;
         }
 
         .tab-content {
-            padding: 5px;
+            padding: 0 10px;
             background: #fff;
-            margin: 5px 0 0 0;
+            margin: 0;
             cursor: auto;
         }
 
         .tab-title {
-            color: #dedede;
+            color: #444;
             display: block;
-            font-size: 11px;
             font-weight: bold;
-            float: right;
-            clear: right;
+            padding-top: 10px;
         }
 
         .r-label {
             color: #fff;
-            border-radius: 6px;
-            font-size: 11px;
-            padding: 1px 3px;
+            padding: 2px 6px;
+            font-weight: bold;
             background: #888;
             display: inline-block;
             vertical-align: top;
         }
 
         .r-label-green {
-            background: #759e1a;
+            background: #4F805D;
         }        
 
         .r-label-red {
-            background: #a33;
+            background: #B0414A;
         }
 
         .r-label-yellow {
-            background: #ffcc00;
+            background: #A46A1F;
         }
 
         .r-label-blue {
@@ -111,22 +107,34 @@
             color: #a33;
         }
 
+        ul.api-calls {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            box-shadow: 0px 0px 1px rgba(128, 128, 128, .2);
+        }
+
+        ul.api-calls li .api-call-title {
+            display: inline-block;
+            padding-top: 3px;
+        }
+
+        ul.api-calls li {
+            margin-bottom: 0;
+        }
+
+        ul.api-calls .api-call-base {
+            padding: 5px;
+        }
+
         ul.alt li.error {
             margin: 0;
-        }
-
-        ul.alt li.success:hover {
-            background: #E5F5BC;
-        }
-
-        ul.alt li.error:hover {
-            background: #FFDEDE;
         }
 
         ul.alt li {
             transition: background-color 0.1s ease-in;
             cursor: pointer;
-            border: 1px solid #d0dbb3;
+            border: 1px solid #E0E0E0;
             border-bottom-width: 0;
         }
 
@@ -139,7 +147,7 @@
         }
 
         ul.alt li.togglable-closed {
-            height: 15px;
+            height: 33px;
             overflow: hidden;
         }        
 
@@ -149,11 +157,15 @@
         }
 
         .msg-body {
-            margin: 5px;
-            padding: 5px;
-            font-size: 11px;
-            background: #FFFBD7;
+            margin-top: 5px;
+            padding: 10px;
+            background: #fafafa;
             min-height: 11px;
+            position: relative;
+        }
+
+        .msg-body pre.code {
+            margin: 0;
         }
 
         .pull-right {
@@ -162,11 +174,11 @@
         }
 
         .body-link {
-            font-size: 11px;
             font-weight: bold;
             text-decoration: none;
-            color: #D5BF02;
-            float: right;
+            position: absolute;
+            right: 10px;
+            top: 10px;
         }
 
         ul.alt li,
@@ -179,39 +191,42 @@
 
     <h2>API Calls</h2>
     {% if collector.hasCalls %}
-        <ul class="alt">
+        <ul class="api-calls alt">
             {% for call in collector.calls %}
                 <li class="togglable togglable-closed {% if call.hasError %}error{% else %}success{% endif %}">
-                    {% if call.hasResponse %}
-                        <span class="r-label r-label-{% if call.hasError %}red{% elseif call.hasWarning %}yellow{% else %}green{% endif %}">
-                            {{ call.responseData.statusCode }}
+                    <div class="api-call-base">
+                        {% if call.hasResponse %}
+                            <span class="r-label r-label-{% if call.hasError %}red{% elseif call.hasWarning %}yellow{% else %}green{% endif %}">
+                                {{ call.responseData.statusCode }}
+                            </span>
+                        {% elseif call.hasError %}
+                            <span class="r-label r-label-red">
+                                EXC
+                            </span>
+                        {% endif %}
+
+                        <span class="api-call-title">
+                            <strong>{{ call.requestData.method }}</strong>
+                            <a href="{{ call.requestData.url }}" target="_blank">{{ call.requestData.url }}</a>
                         </span>
-                    {% elseif call.hasError %}
-                        <span class="r-label r-label-red">
-                            EXC
-                        </span>
-                    {% endif %} 
 
-                    <strong>{{ call.requestData.method }}</strong>
-
-                    <a href="{{ call.requestData.url }}" target="_blank">{{ call.requestData.url }}</a>
-
-                    <div class="pull-right">
-                        {% if call.hasResponse and call.responseData.length %}
-                            <span class="r-label">
-                                {{ (call.responseData.length / 1024)|number_format(2) }} KiB
-                            </span>
-                        {% endif %}
-                        {% if call.totalTime %}
-                            <span class="r-label">
-                                {{ call.totalTime|number_format(2) }} s
-                            </span>
-                        {% endif %}
-                        {% if call.apiName %}
-                            <span class="r-label">
-                                {{ call.apiName }}
-                            </span>
-                        {% endif %}
+                        <div class="pull-right">
+                            {% if call.hasResponse and call.responseData.length %}
+                                <span class="r-label">
+                                    {{ (call.responseData.length / 1024)|number_format(2) }} KiB
+                                </span>
+                            {% endif %}
+                            {% if call.totalTime %}
+                                <span class="r-label">
+                                    {{ call.totalTime|number_format(2) }} s
+                                </span>
+                            {% endif %}
+                            {% if call.apiName %}
+                                <span class="r-label">
+                                    {{ call.apiName }}
+                                </span>
+                            {% endif %}
+                        </div>
                     </div>
 
                     <div class="tab-content">
@@ -228,11 +243,11 @@
                             </small>
                         {% endif %}
                         {% if call.requestData.hasHeaders %}
-                            <span class="small-header">Request Headers</span>
+                            <span class="small-header">Headers</span>
                             {{ _self.show_headers(call.requestData.headers) }}
                         {% endif %}
                         {% if call.requestData.urlQueryParameters %}
-                            <span class="small-header">Query Parameters</span>
+                            <span class="small-header">Query</span>
                             {{ _self.show_headers(call.requestData.urlQueryParameters) }}
                         {% endif %}
                         {{ _self.show_body(call.requestData) }}
@@ -260,9 +275,7 @@
     {% endif %}
     <script type="text/javascript">
         var togglables = document.getElementsByClassName('togglable');
-        var toggle = function(e) {
-            var togglable = e.target;
-            
+        var toggle = function(togglable) {
             if(Sfjs.hasClass(togglable, 'togglable-open')) {
                 Sfjs.removeClass(togglable, 'togglable-open');
                 Sfjs.addClass(togglable, 'togglable-closed');
@@ -270,10 +283,14 @@
                 Sfjs.removeClass(togglable, 'togglable-closed');
                 Sfjs.addClass(togglable, 'togglable-open');
             }                
-        }
+        };
 
         for(var i = 0; i < togglables.length; ++i) {
-            togglables[i].onclick = toggle;
+            var togglable = togglables[i];
+
+            togglable.onclick = function() {
+                toggle(togglable);
+            };
         }
     </script>    
 {% endblock %}
