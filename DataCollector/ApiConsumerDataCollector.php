@@ -5,7 +5,6 @@ namespace Pinkeen\ApiDebugBundle\DataCollector;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use Pinkeen\ApiDebugBundle\Event\ApiCallEvent;
 
 /**
@@ -40,7 +39,6 @@ class ApiConsumerDataCollector extends DataCollector
     public function collectCall(ApiCallEvent $event)
     {
         $callData = $event->getData();
-
         $this->data['calls'][] = $callData;
 
         if(!in_array($callData->getApiName(), $this->data['apis'])) {
@@ -58,6 +56,11 @@ class ApiConsumerDataCollector extends DataCollector
         if(false !== $callData->getTotalTime()) {
             $this->data['total_time'] += $callData->getTotalTime();
         }
+    }
+
+    public function reset()
+    {
+        $this->data = [];
     }
 
     /**

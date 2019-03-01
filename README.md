@@ -13,10 +13,12 @@ It should be extremely easy to integrate with any http client using PSR-7 messag
 
 For `Guzzle4`-compatible version use the `v1.0` tag.
 
+For `Symfony < 3.3`-compatible version use the `v2.0` tag.
+
 ## Requirements
 
-* PHP 5.4
-* Symfony 2.4
+* PHP 5.5.9
+* Symfony 3.3
 
 ## Installation
 
@@ -32,6 +34,35 @@ Add the following to your `app/config/routing_dev.yml` if you want to be able to
 _api_debug:
     resource: "@PinkeenApiDebugBundle/Resources/config/routing.yml"
     prefix:   /_profiler
+```
+
+## Services
+
+### New symfony approach
+
+All services expect GuzzleClientFactory and RingPHPHandlerFactory are private,
+which means you cannot fetch services directly from the container via $container->get().
+
+They are also automatically registered and set to autowire,
+all you need to do add type-hinted service to your class as an argument of contructor.
+
+```php
+// src/AppBundle/Service/FooService.php
+// ...
+
+use Pinkeen\ApiDebugBundle\Bridge\Guzzle\Middleware\DataCollectorMiddleware;
+
+class FooService
+{
+    private $dataCollectorMiddleware;
+
+    public function __construct(DataCollectorMiddleware $dataCollectorMiddleware)
+    {
+        $this->dataCollectorMiddleware = $dataCollectorMiddleware;
+    }
+
+    // ...
+}
 ```
 
 ## Usage
@@ -52,8 +83,8 @@ Then every time your API consumer makes a request dispatch an [`ApiEvents::API_C
     use Pinkeen\ApiDebugBundle\Event\ApiCallEvent;
     
     /* ... */
-    
-    $serviceContainer->get('event_dispatcher')->dispatch(
+    /** @var $eventDispatcher \Symfony\Component\EventDispatcher\EventDispatcher */
+    $eventDispatcher->dispatch(
         ApiEvents::API_CALL, 
         new ApiCallEvent(
             new YourApiCallData(/* your params */)
@@ -68,7 +99,8 @@ You've got two options here, either:
 *Let the bundle create the client for you...*
 
 ```php
-    $serviceContainer->get('guzzle.client_factory')->create([
+    /** @var $guzzleClientFactory \Pinkeen\ApiDebugBundle\Bridge\Guzzle\Service\GuzzleClientFactory */
+    $guzzleClientFactory->create([
         /* Guzzle client config (optional).
          * It is passed directly to GuzzleHttp\Client constructor. */
     ]);
@@ -78,7 +110,9 @@ You've got two options here, either:
 
 ```php
     $handler = new GuzzleHttp\HandlerStack(new GuzzleHttp\Handler\CurlHandler());
-    $handler->push($serviceContainer->get('guzzle.collector_middleware')->getHandler());
+    /** @var $dataCollectorMiddleware \Pinkeen\ApiDebugBundle\Bridge\Guzzle\Middleware\DataCollectorMiddleware */
+    $dataCollectorMiddlewareHandler = $dataCollectorMiddleware->getHandler();
+    $handler->push($dataCollectorMiddlewareHandler);
     $client = new GuzzleHttp\Client(['handler' => $handler]);
 ```
 
@@ -87,16 +121,16 @@ You've got two options here, either:
 *Let the bundle create the handler for you:*
 
 ```php
-    $handler = $serviceContainer->get('ring_php.handler_factory')->create(new CurlHandler());
+    /** @var $ringPHPHandlerFactory \Pinkeen\ApiDebugBundle\Bridge\RingPHP\Service\RingPHPHandlerFactory */
+    $handler = $ringPHPHandlerFactory->create(new CurlHandler());
 ```
 
 *Use the collector_middleware service to create your RingPHP middleware and wrap it around your base handler:*
 
 ```php
-    $ringPhpHandler = $serviceContainer
-        ->get('ring_php.collector_middleware')
-        ->createHandler(new GuzzleHttp\Ring\Client\CurlHandler(), 'apiname')
-    ;
+    /** @var $dataCollectorMiddleware \Pinkeen\ApiDebugBundle\Bridge\RingPHP\Middleware\DataCollectorMiddleware */
+    $ringPhpHandler = $dataCollectorMiddleware->createHandler(new GuzzleHttp\Ring\Client\CurlHandler(), 'apiname');
+```
 
 PS Nicely integrates with elasticsearch-php 2.0.
 
@@ -104,8 +138,8 @@ PS Nicely integrates with elasticsearch-php 2.0.
 
 For production environment you probably want to skip all of the data gathering.
 
-You should take care of that yourself, unless you're using `guzzle.client_factory` or `ring_php.handler_factory` which
-skip it when not in debug mode.
+You should take care of that yourself, unless you're using `Pinkeen\ApiDebugBundle\Bridge\Guzzle\Service\GuzzleClientFactory` or
+`Pinkeen\ApiDebugBundle\Bridge\RingPHP\Service\RingPHPHandlerFactory` which skip it when not in debug mode.
 
 ## Notes 
 

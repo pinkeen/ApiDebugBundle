@@ -1,22 +1,29 @@
 services:
-    data_collector.api_consumer:
-        class: Pinkeen\ApiDebugBundle\DataCollector\ApiConsumerDataCollector
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    Pinkeen\ApiDebugBundle\:
+        resource: '../../*'
+        exclude: '../../{Resources,Twig}'
+
+    Pinkeen\ApiDebugBundle\DataCollector\Data\AbstractCallData:
+        alias: Pinkeen\ApiDebugBundle\DataCollector\Data\PsrCallData
+
+    Pinkeen\ApiDebugBundle\DataCollector\ApiConsumerDataCollector:
         tags:
             - { name: data_collector, template: "PinkeenApiDebugBundle:Collector:api_consumer.html.twig", id: "api_consumer" }
             - { name: kernel.event_listener, event: api_call, method: collectCall }
 
-    guzzle.collector_middleware:
-        class: Pinkeen\ApiDebugBundle\Bridge\Guzzle\Middleware\DataCollectorMiddleware
-        arguments: ['@event_dispatcher']
+    Pinkeen\ApiDebugBundle\Bridge\Guzzle\Middleware\DataCollectorMiddleware: ~
+    Pinkeen\ApiDebugBundle\Bridge\Guzzle\Service\GuzzleClientFactory:
+        arguments:
+            $debug: '%kernel.debug%'
+        public: true
 
-    guzzle.client_factory:
-        class: Pinkeen\ApiDebugBundle\Bridge\Guzzle\Service\GuzzleClientFactory
-        arguments: ['@guzzle.collector_middleware', '%kernel.debug%']
-
-    ring_php.collector_middleware:
-        class: Pinkeen\ApiDebugBundle\Bridge\RingPHP\Middleware\DataCollectorMiddleware
-        arguments: ['@event_dispatcher']
-
-    ring_php.handler_factory:
-        class: Pinkeen\ApiDebugBundle\Bridge\RingPHP\Service\RingPHPHandlerFactory
-        arguments: ['@ring_php.collector_middleware', '%kernel.debug%']
+    Pinkeen\ApiDebugBundle\Bridge\RingPHP\Middleware\DataCollectorMiddleware: ~
+    Pinkeen\ApiDebugBundle\Bridge\RingPHP\Service\RingPHPHandlerFactory:
+        arguments:
+            $debug: '%kernel.debug%'
+        public: true
