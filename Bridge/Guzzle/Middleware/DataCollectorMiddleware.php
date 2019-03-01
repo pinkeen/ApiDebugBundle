@@ -60,7 +60,6 @@ class DataCollectorMiddleware
     {
         $exception = $reason instanceof RequestException ? $reason : null;
         $response = $exception ? $exception->getResponse() : null;
-
         $this->collect($request, $response, $options, $exception);
     }
 

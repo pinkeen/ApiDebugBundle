@@ -1,5 +1,7 @@
 {% extends 'WebProfilerBundle:Profiler:layout.html.twig' %}
 
+{% import _self as macros %}
+
 {% block toolbar %}
     {% if collector.hasCalls %}
         {% set icon %}
@@ -229,13 +231,13 @@
                         {% endif %}
                         {% if call.requestData.hasHeaders %}
                             <span class="small-header">Request Headers</span>
-                            {{ _self.show_headers(call.requestData.headers) }}
+                            {{ macros.show_headers(call.requestData.headers) }}
                         {% endif %}
                         {% if call.requestData.urlQueryParameters %}
                             <span class="small-header">Query Parameters</span>
-                            {{ _self.show_headers(call.requestData.urlQueryParameters) }}
+                            {{ macros.show_headers(call.requestData.urlQueryParameters) }}
                         {% endif %}
-                        {{ _self.show_body(call.requestData) }}
+                        {{ macros.show_body(call.requestData) }}
                     </div>
                     {% if call.hasResponse %}
                         <div class="tab-content"> 
@@ -247,9 +249,9 @@
                             {% endif %}
                             {% if call.responseData.hasHeaders %}
                                 <span class="small-header">Response Headers</span>
-                                {{ _self.show_headers(call.responseData.headers) }}
+                                {{ macros.show_headers(call.responseData.headers) }}
                             {% endif %}
-                            {{ _self.show_body(call.responseData) }}
+                            {{ macros.show_body(call.responseData) }}
                         </div>
                     {% endif %}
                 </li>
